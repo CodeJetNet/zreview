@@ -1,6 +1,6 @@
 ---
 name: zwalden-review
-description: "Pre-commit code review against zwalden's standards. Use when: (1) asked to review code before a PR, (2) 'would zwalden approve', (3) 'code review', (4) 'check my PR', (5) 'pre-commit review'. Reviews PHP/TypeScript code for the alldigitalrewards org against zwalden's actual review patterns."
+description: "Pre-commit code review against zwalden's standards. Use when: (1) asked to review code before a PR, (2) 'would zech approve', (3) 'code review', (4) 'check my PR', (5) 'pre-commit review'. Reviews PHP/TypeScript code for the alldigitalrewards org against zwalden's actual review patterns."
 ---
 
 # zwalden-review

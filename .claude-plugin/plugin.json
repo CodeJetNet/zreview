@@ -1,0 +1,12 @@
+{
+  "name": "zwalden-review",
+  "description": "Pre-commit code review skill that checks PHP/TypeScript code against zwalden's established review standards",
+  "version": "1.0.0",
+  "author": {
+    "name": "jhoughtelin"
+  },
+  "homepage": "https://github.com/jhoughtelin/zwalden-review",
+  "repository": "https://github.com/jhoughtelin/zwalden-review",
+  "license": "MIT",
+  "keywords": ["skills", "code-review", "php", "typescript", "best-practices"]
+}

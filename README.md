@@ -1,6 +1,6 @@
 # zwalden-review
 
-An [OpenClaw](https://openclaw.ai) / [AgentSkills](https://agentskills.io)-compatible skill that performs pre-commit code reviews against **@zwalden's** established review standards, derived from 107 real PR review comments across the [alldigitalrewards](https://github.com/alldigitalrewards) GitHub org.
+A Claude Code plugin that performs pre-commit code reviews against **@zwalden's** established review standards, derived from 107 real PR review comments across the [alldigitalrewards](https://github.com/alldigitalrewards) GitHub org.
 
 ## What it does
 
@@ -9,10 +9,12 @@ Run this skill before opening a PR to catch the patterns that consistently get f
 ## Install
 
 ```bash
-clawhub install zwalden-review
-```
+# Add the marketplace
+/plugin marketplace add jhoughtelin/zwalden-review
 
-Or manually — clone this repo and copy the `zwalden-review/` folder into your OpenClaw workspace's `skills/` directory.
+# Install the plugin
+/plugin install zwalden-review@zwalden-review-marketplace
+```
 
 ## What it checks
 
@@ -30,9 +32,9 @@ Or manually — clone this repo and copy the `zwalden-review/` folder into your 
 
 ## Usage
 
-Once installed, trigger it in OpenClaw by saying:
+Once installed, trigger it by saying:
 - *"Review this code before I open a PR"*
-- *"Would zwalden approve this?"*
+- *"Would zech approve this?"*
 - *"Check my PR"*
 - *"Code review"*
 
@@ -42,16 +44,21 @@ Point it at a file, a diff, or paste the code directly.
 
 ```
 zwalden-review/
-├── SKILL.md                    # Core skill + top-10 rules
-└── references/
-    ├── security.md             # Auth, injection, sanitization
-    ├── php-patterns.md         # Type hints, Slim, Doctrine, AI anti-patterns
-    ├── architecture.md         # Layering, controllers, middleware
-    ├── testing.md              # Test requirements and patterns
-    ├── api-design.md           # Response formats, status codes
-    └── docker-ci.md            # Dockerfile standards, CI patterns
+├── .claude-plugin/
+│   ├── plugin.json             # Claude Code plugin metadata
+│   └── marketplace.json        # Self-hosted marketplace definition
+└── skills/
+    └── zwalden-review/
+        ├── SKILL.md            # Core skill + top-10 rules
+        └── references/
+            ├── security.md     # Auth, injection, sanitization
+            ├── php-patterns.md # Type hints, Slim, Doctrine, AI anti-patterns
+            ├── architecture.md # Layering, controllers, middleware
+            ├── testing.md      # Test requirements and patterns
+            ├── api-design.md   # Response formats, status codes
+            └── docker-ci.md    # Dockerfile standards, CI patterns
 ```
 
 ## Source
 
-Built from 107 review comments across 100 PRs (Jan–Mar 2026). Generated and maintained with [OpenClaw](https://openclaw.ai).
+Built from 107 review comments across 100 PRs (Jan–Mar 2026).
