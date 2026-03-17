@@ -1,4 +1,4 @@
-# PHP Patterns Reference — zwalden's Standards
+# PHP Patterns Reference
 
 ## 1. Type Hints — Non-Negotiable
 

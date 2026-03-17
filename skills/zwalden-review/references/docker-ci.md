@@ -1,9 +1,8 @@
-# Docker & CI/CD Reference — zwalden's Standards
+# Docker & CI/CD Reference
 
 ## Canonical Dockerfile Pattern
 
-zwalden has a specific Dockerfile structure he expects all services to follow.
-Reference: `https://github.com/alldigitalrewards/transaction-email/blob/master/Dockerfile`
+There is a specific Dockerfile structure expected for all services.
 
 ### Required Structure: Three Targets
 
@@ -68,7 +67,7 @@ CMD ["/usr/local/bin/startup.sh"]
 
 ### Build and Push Workflow
 
-Required fields that zwalden checks:
+Required fields:
 ```yaml
 # deployment step must specify:
 namespace: mpadmin  # (or appropriate namespace)
@@ -83,7 +82,7 @@ If you have sequential Docker build steps that could be one step, combine them. 
 
 ### Test Workflow
 
-For PHP services, the test workflow must declare required extensions. zwalden will ask "Is this change required?" when extensions are added to test CI.
+For PHP services, the test workflow must declare required extensions. Expect the question "Is this change required?" when extensions are added to test CI.
 
 Standard extensions for most services:
 - `pdo`, `pdo_mysql`, `bcmath`, `sockets`

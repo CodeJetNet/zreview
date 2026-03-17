@@ -1,4 +1,4 @@
-# API Design Reference — zwalden's Standards
+# API Design Reference
 
 ## 1. Route Definitions — Use Controller::class
 
@@ -52,7 +52,7 @@ return $response
     ]]));
 ```
 
-From actual code zwalden suggested:
+Suggested pattern:
 ```php
 $body = json_encode(['errors' => $message]);
 if (is_string($message)) {
@@ -96,12 +96,6 @@ If `resolveParams` merges POST and GET, that's fine — keep it. If it only wrap
 ## 6. JWT / Auth Scopes
 
 Required scopes must be validated in middleware before the controller runs.
-
-From zwalden-reviewed PRs:
-- DS-12181: Chat API unprotected endpoints needed JWT auth
-- DS-12175: Catalog and catalog-search-api routes needed JWT
-- DS-12174: Report API routes needed scope auth
-- DS-12126: Budget order create scope added across multiple services
 
 **Pattern:** Scope names follow `resource.action` convention (e.g., `budget.order.create`).
 

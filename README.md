@@ -1,6 +1,6 @@
 # zwalden-review
 
-A Claude Code plugin that performs pre-commit code reviews against **@zwalden's** established review standards, derived from 107 real PR review comments across the [alldigitalrewards](https://github.com/alldigitalrewards) GitHub org.
+A Claude Code plugin that performs pre-commit code reviews against established review standards for PHP/TypeScript projects.
 
 ## What it does
 
@@ -59,6 +59,3 @@ zwalden-review/
             └── docker-ci.md    # Dockerfile standards, CI patterns
 ```
 
-## Source
-
-Built from 107 review comments across 100 PRs (Jan–Mar 2026).

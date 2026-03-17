@@ -1,4 +1,4 @@
-# Testing Reference — zwalden's Standards
+# Testing Reference
 
 ## 1. Testability Through Setters
 
@@ -34,7 +34,7 @@ $controller->setHtmlPurifier($this->createMock(HTMLPurifier::class));
 
 From PR DS-12098: "fix slim 4 issues, **with tests**" — tests were part of the PR requirement.
 
-zwalden expects tests when:
+Tests are expected when:
 - Adding new endpoints
 - Fixing bugs (regression test)
 - Adding middleware
@@ -90,7 +90,7 @@ catch (error) {
 From PR DS-12214 (marketplace-client PHP 8.5 upgrade):
 > "I'd feel a lot better if @stan-adr told me we had thorough integration tests for marketplace client to test pre-merge."
 
-When doing major upgrades (PHP version bumps, composer updates), zwalden explicitly looks for integration test coverage before approving. Don't just run unit tests for framework/version migrations.
+When doing major upgrades (PHP version bumps, composer updates), integration test coverage is expected before approving. Don't just run unit tests for framework/version migrations.
 
 ---
 

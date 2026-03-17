@@ -1,4 +1,4 @@
-# Security Reference — zwalden's Standards
+# Security Reference
 
 ## 1. HTML Sanitization
 
@@ -41,11 +41,6 @@ $twig->addGlobal('htmlPurifier', $container->get(HTMLPurifier::class));
 ## 2. Auth / JWT Protection
 
 **Rule:** Every non-public route MUST have JWT/scope middleware. Missing auth is treated as a security bug, not a code style issue.
-
-From actual PRs that zwalden specifically reviewed and approved:
-- DS-12181: Auth check added to unprotected chat endpoints
-- DS-12175: JWT auth protection added to catalog routes
-- DS-12174: Scope auth added to unprotected report routes
 
 **Pattern:**
 ```php

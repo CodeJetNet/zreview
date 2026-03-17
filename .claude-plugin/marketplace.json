@@ -6,7 +6,7 @@
   "plugins": [
     {
       "name": "zwalden-review",
-      "description": "Pre-commit code review skill that checks PHP/TypeScript code against zwalden's established review standards",
+      "description": "Pre-commit code review skill that checks PHP/TypeScript code against established review standards",
       "version": "1.0.0",
       "source": "./"
     }

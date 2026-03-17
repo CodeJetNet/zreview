@@ -1,4 +1,4 @@
-# Architecture Reference — zwalden's Standards
+# Architecture Reference
 
 ## 1. Single-Action Controllers with `__invoke`
 

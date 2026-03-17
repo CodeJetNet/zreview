@@ -1,6 +1,6 @@
 ---
 name: zwalden-review
-description: "Pre-commit code review against zwalden's standards. Use when: (1) asked to review code before a PR, (2) 'would zech approve', (3) 'code review', (4) 'check my PR', (5) 'pre-commit review'. Reviews PHP/TypeScript code for the alldigitalrewards org against zwalden's actual review patterns."
+description: "Pre-commit code review against team standards. Use when: (1) asked to review code before a PR, (2) 'would zech approve', (3) 'code review', (4) 'check my PR', (5) 'pre-commit review'. Reviews PHP/TypeScript code against established review patterns."
 ---
 
 # zwalden-review
@@ -14,9 +14,9 @@ description: "Pre-commit code review against zwalden's standards. Use when: (1) 
 
 ---
 
-## Top-10 Rules zwalden Consistently Enforces
+## Top-10 Rules Consistently Enforced
 
-These are ordered by frequency in his actual reviews. Flag all of them.
+These are ordered by frequency. Flag all of them.
 
 ### 1. No `mixed` Types — Use Explicit Types
 Never use `mixed` for properties, parameters, or return types. If it can be null, use `?int`, `?string`, etc. PHP 8+ has the tools; use them.
@@ -137,7 +137,7 @@ For detailed rules with more examples:
 
 ## LGTM vs Request Changes
 
-**LGTM (zwalden approves when):**
+**LGTM (approves when):**
 - Controllers use `__invoke`, one per route action
 - All types explicitly declared throughout (no `mixed`)
 - Access modifiers on every member
@@ -146,7 +146,7 @@ For detailed rules with more examples:
 - Boolean names start with `is` or `has`
 - Docblocks only where they add value beyond types
 
-**Request Changes (zwalden blocks when):**
+**Request Changes (blocks when):**
 - `mixed` type used where a real type is knowable
 - Validation logic in controller body
 - Multi-action controllers or string-based route handlers
@@ -156,7 +156,7 @@ For detailed rules with more examples:
 - Generic `object` return type instead of a proper DTO
 - Classes not imported; FQCN used inline with `\`
 
-**Nitpick (zwalden flags but doesn't block on):**
+**Nitpick (flags but doesn't block on):**
 - Redundant docblocks
 - First-error-only vs aggregated error responses
 - Overly long methods that could be split
