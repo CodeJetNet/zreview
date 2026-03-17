@@ -1,11 +1,11 @@
 {
-  "name": "zwalden-review-marketplace",
+  "name": "zreview-marketplace",
   "owner": {
-    "name": "jhoughtelin"
+    "name": "CodeJetNet"
   },
   "plugins": [
     {
-      "name": "zwalden-review",
+      "name": "zreview",
       "description": "Pre-commit code review skill that checks PHP/TypeScript code against established review standards",
       "version": "1.0.0",
       "source": "./"

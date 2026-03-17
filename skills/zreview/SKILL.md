@@ -1,9 +1,9 @@
 ---
-name: zwalden-review
+name: zreview
 description: "Pre-commit code review against team standards. Use when: (1) asked to review code before a PR, (2) 'would zech approve', (3) 'code review', (4) 'check my PR', (5) 'pre-commit review'. Reviews PHP/TypeScript code against established review patterns."
 ---
 
-# zwalden-review
+# zreview
 
 ## How to Use This Skill
 

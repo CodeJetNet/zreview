@@ -1,12 +1,12 @@
 {
-  "name": "zwalden-review",
+  "name": "zreview",
   "description": "Pre-commit code review skill that checks PHP/TypeScript code against established review standards",
   "version": "1.0.0",
   "author": {
-    "name": "jhoughtelin"
+    "name": "CodeJetNet"
   },
-  "homepage": "https://github.com/jhoughtelin/zwalden-review",
-  "repository": "https://github.com/jhoughtelin/zwalden-review",
+  "homepage": "https://github.com/CodeJetNet/zreview",
+  "repository": "https://github.com/CodeJetNet/zreview",
   "license": "MIT",
   "keywords": ["skills", "code-review", "php", "typescript", "best-practices"]
 }

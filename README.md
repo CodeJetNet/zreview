@@ -1,4 +1,4 @@
-# zwalden-review
+# zreview
 
 A Claude Code plugin that performs pre-commit code reviews against established review standards for PHP/TypeScript projects.
 
@@ -10,10 +10,10 @@ Run this skill before opening a PR to catch the patterns that consistently get f
 
 ```bash
 # Add the marketplace
-/plugin marketplace add jhoughtelin/zwalden-review
+/plugin marketplace add CodeJetNet/zreview
 
 # Install the plugin
-/plugin install zwalden-review@zwalden-review-marketplace
+/plugin install zreview@zreview-marketplace
 ```
 
 ## What it checks
@@ -43,12 +43,12 @@ Point it at a file, a diff, or paste the code directly.
 ## Structure
 
 ```
-zwalden-review/
+zreview/
 ├── .claude-plugin/
 │   ├── plugin.json             # Claude Code plugin metadata
 │   └── marketplace.json        # Self-hosted marketplace definition
 └── skills/
-    └── zwalden-review/
+    └── zreview/
         ├── SKILL.md            # Core skill + top-10 rules
         └── references/
             ├── security.md     # Auth, injection, sanitization
@@ -58,4 +58,3 @@ zwalden-review/
             ├── api-design.md   # Response formats, status codes
             └── docker-ci.md    # Dockerfile standards, CI patterns
 ```
-
