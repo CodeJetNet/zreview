@@ -371,3 +371,4 @@ These memories persist across conversations and inform agent behavior:
 - **GitHub access:** GitHub token for private repos is in zshrc as `GITHUB_PERSONAL_ACCESS_TOKEN`
 - **JIRA ticket quality:** Always fill Overview, Specification, Risk Analysis, Testing Strategy sections on JIRA tickets
 - **Plan execution:** Always choose subagent-driven development for plan execution
+
