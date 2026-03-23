@@ -1,12 +1,12 @@
 {
   "name": "zreview",
-  "description": "Pre-commit code review skill that checks PHP/TypeScript code against established review standards",
-  "version": "1.0.0",
+  "description": "Code review, upgrade guides, and autonomous development skills for PHP/TypeScript teams",
+  "version": "1.1.0",
   "author": {
     "name": "CodeJetNet"
   },
   "homepage": "https://github.com/CodeJetNet/zreview",
   "repository": "https://github.com/CodeJetNet/zreview",
   "license": "MIT",
-  "keywords": ["skills", "code-review", "php", "typescript", "best-practices"]
+  "keywords": ["skills", "code-review", "php", "typescript", "angular", "upgrades", "tdd", "best-practices"]
 }

@@ -1,10 +1,6 @@
 # zreview
 
-A Claude Code plugin that performs pre-commit code reviews against established review standards for PHP/TypeScript projects.
-
-## What it does
-
-Run this skill before opening a PR to catch the patterns that consistently get flagged in code review — saving reviewer time and reducing back-and-forth.
+A Claude Code plugin with skills for code review, autonomous development, and stack upgrade guides for PHP/TypeScript teams.
 
 ## Install
 
@@ -16,7 +12,13 @@ Run this skill before opening a PR to catch the patterns that consistently get f
 /plugin install zreview@zreview-marketplace
 ```
 
-## What it checks
+## Skills
+
+### zreview
+
+Pre-commit code review against established review standards. Catches patterns that consistently get flagged in review — saving reviewer time and reducing back-and-forth.
+
+**Trigger with:** "Review this code before I open a PR", "Would zech approve this?", "Check my PR", "Code review"
 
 | Category | Examples |
 |---|---|
@@ -30,31 +32,56 @@ Run this skill before opening a PR to catch the patterns that consistently get f
 | **API design** | Consistent response envelopes, correct HTTP status codes |
 | **Docker/CI** | Match the canonical `transaction-email` Dockerfile template |
 
-## Usage
+### adr-developer
 
-Once installed, trigger it by saying:
-- *"Review this code before I open a PR"*
-- *"Would zech approve this?"*
-- *"Check my PR"*
-- *"Code review"*
+Autonomous developer agent. Given a JIRA ticket key, handles the full lifecycle: read the ticket, clone the repo, implement with TDD, test in Docker, push, open a PR, and update JIRA.
 
-Point it at a file, a diff, or paste the code directly.
+**Trigger with:** Provide a JIRA ticket key (e.g., `DS-12397`)
+
+### php85-fullstack-upgrade
+
+Phased migration guide for upgrading PHP/Slim microservices to PHP 8.5 with modernized dependencies. Covers:
+
+- Behavioral baselines (Newman/Postman)
+- Docker infrastructure (PHP 8.5, MySQL 8.4, Redis 7.4, RabbitMQ 4)
+- PHPUnit 9 to 12
+- Slim 3 to Slim 4
+- Doctrine ORM 2 to 3 / DBAL 3 to 4
+- Remaining dependency upgrades
+- Database charset standardization
+
+### angular-latest-upgrade
+
+Phased migration guide for upgrading Angular applications to the latest stable version. Covers:
+
+- Sequential `ng update` migrations (one major at a time)
+- Deprecated tooling removal (Protractor, TSLint)
+- TypeScript/tsconfig modernization
+- Test configuration updates (Karma/Jasmine or Jest)
+- Docker/CI updates for current Node LTS
+- Post-upgrade modernization paths (standalone components, signals, zoneless)
 
 ## Structure
 
 ```
 zreview/
 ├── .claude-plugin/
-│   ├── plugin.json             # Claude Code plugin metadata
-│   └── marketplace.json        # Self-hosted marketplace definition
+│   ├── plugin.json
+│   └── marketplace.json
 └── skills/
-    └── zreview/
-        ├── SKILL.md            # Core skill + top-10 rules
-        └── references/
-            ├── security.md     # Auth, injection, sanitization
-            ├── php-patterns.md # Type hints, Slim, Doctrine, AI anti-patterns
-            ├── architecture.md # Layering, controllers, middleware
-            ├── testing.md      # Test requirements and patterns
-            ├── api-design.md   # Response formats, status codes
-            └── docker-ci.md    # Dockerfile standards, CI patterns
+    ├── zreview/
+    │   ├── SKILL.md
+    │   └── references/
+    │       ├── security.md
+    │       ├── php-patterns.md
+    │       ├── architecture.md
+    │       ├── testing.md
+    │       ├── api-design.md
+    │       └── docker-ci.md
+    ├── adr-developer/
+    │   └── SKILL.md
+    ├── php85-fullstack-upgrade/
+    │   └── SKILL.md
+    └── angular-latest-upgrade/
+        └── SKILL.md
 ```
