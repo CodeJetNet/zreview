@@ -12,13 +12,23 @@ Autonomous developer agent for AllDigitalRewards. Given a JIRA ticket key, it ha
 ## Ticket Intake
 
 1. **Fetch the JIRA ticket** via Atlassian MCP tools — read summary, description, acceptance criteria, and linked repo URL
-2. **Parse the repo URL** from the description (GitHub link under `https://github.com/alldigitalrewards`)
-3. **Clone or pull** the repo
-4. **Assess clarity** — determine if the ticket has enough context to begin
+2. **Read ALL ticket comments** — QA reports, blocker callouts, and prior implementation notes live in comments. Read them before planning.
+3. **Gather context** — read linked tickets, parent epic (if any), and check the ticket's status history. A ticket in "Returned from QA" is fundamentally different from one in "To Do."
+4. **Parse the repo URL** from the description (GitHub link under `https://github.com/alldigitalrewards`). If no URL, search the AllDigitalRewards org: `gh repo list alldigitalrewards --limit 100 | grep <service-name>`.
+5. **Clone or pull** the repo
+6. **Check for prior work** — before creating a branch, check if one already exists:
+   ```bash
+   git branch -r | grep <TICKET-KEY>
+   gh pr list --search "<TICKET-KEY>" --state all
+   ```
+   - **Existing branch + no PR** → work was started but not finished. Inspect the commits, understand what was done, continue from there.
+   - **Existing branch + merged PR** → this is a QA return. The prior fix was insufficient. Read QA comments to understand what regressed. Do NOT assume the ticket is done.
+   - **Existing branch + open PR** → PR is in review or was rejected. Read PR comments for reviewer feedback before making changes.
+   - **No existing branch** → fresh work. Proceed normally.
+7. **Assess clarity** — determine if the ticket has enough context to begin
 
 ### Hard Blockers — Stop and Comment on JIRA
 
-- No repo link in the ticket description
 - Repo doesn't exist or access is denied
 - Docker environment won't start / no `docker-compose.yml` found
 
@@ -78,22 +88,10 @@ If code is written before its test — delete it and start over. No exceptions f
 
 ### Code Standards
 
-- Clean, DRY, SRP-compliant code
-- Methods: 25-30 lines max
-- Early returns over nested conditionals
-- Reduce cyclomatic complexity — no noise or bloat
-- Readable naming over clever naming
-- No `doThisAndThat()` — if naming suggests multiple responsibilities, split it
-- Defensive at boundaries (user input, external APIs) — not for internal invariants
-- No redundant null checks for values that must exist
-- Inheritance for IS-A, composition for HAS-A
-- Domain-driven design when applicable: clear bounded contexts, public APIs between domains
-- Explicit over implicit — no magic numbers/strings
+Follow all code standards from CLAUDE.md. Additional ADR-specific rules:
+
 - Always `use` import classes — never use fully qualified `\ClassName` inline (e.g., `use Throwable;` then `catch (Throwable $e)`, not `catch (\Throwable $e)`)
-- Latest PHP language constructs (PHP 8.5+: readonly classes, enums, fibers, named arguments, match expressions, etc.)
-- Unix line endings (LF)
-- OWASP security practices
-- Testable code
+- Match the existing repo's patterns before introducing new ones — read 2-3 existing files in the same layer before writing new code
 
 ### MCP Tools
 
@@ -236,6 +234,22 @@ If you commit docker-compose test config to a PR branch, you will pollute the di
 2. Add a comment with a link to the PR
 3. **Log time** — add a worklog to the ticket with the approximate time spent on implementation
 
+## Returned from QA
+
+When a ticket has been sent back from QA (status is "Returned from QA", "Reopened", or has QA comments after a merged PR):
+
+1. **Read ALL QA comments** — understand exactly what failed, what was tested, and what the expected behavior was
+2. **Read the merged PR diff** — `gh pr diff <PR-number>` to understand what the first fix changed
+3. **Identify the regression** — is it the same bug incompletely fixed, a new bug introduced by the fix, or a separate issue that was always there?
+4. **Update the JIRA ticket description** — expand the Specification and Testing Strategy to cover BOTH the original bug AND the QA-reported issue. The description must reflect the full scope.
+5. **Branch from the default branch** (not the old feature branch) — `git checkout -b <TICKET-KEY>-v2` off the latest default branch, which already contains the first fix
+6. **Write a failing test that reproduces the QA-reported issue** — this test must fail against the current default branch (proving the bug exists post-merge)
+7. **Fix with TDD** — standard RED/GREEN/REFACTOR
+8. **Run the full verification suite** including any tests from the first PR to ensure no regressions
+9. **Create a new PR** — reference both the original PR and the QA feedback in the description
+
+**Do not reopen the old PR.** Create a fresh one. The old PR's review context is stale.
+
 ## Implementation Failures
 
 - **Tests fail after repeated attempts** → comment on JIRA with what was tried, create a **draft PR** with the work so far, note the failures
@@ -320,21 +334,9 @@ Not all repos use `master`. Many use `main`. Always verify with the GitHub API o
 
 Updating the JIRA ticket description (Overview, Specification, Risk Analysis, Testing Strategy) is a **blocking delivery step** — do it BEFORE or AT THE SAME TIME as creating the PR. Do not create a PR and then forget to update the ticket description. If a ticket is sent back from QA with a second bug, update the description to cover BOTH bugs, not just the original. The ticket description must always reflect the full scope of what was actually fixed.
 
-### Existing work on a branch doesn't mean the ticket is done
-
-When you find an existing branch with commits and a merged PR, do NOT assume the ticket is complete. The ticket may have been sent back from QA because the fix was insufficient or a second bug was discovered. Always ask the user for context about the current state before declaring work done or transitioning the ticket.
-
 ### Investigate the full code path, not just the reported line
 
 The original bug report pointed to line 67 of `DashboardService.php`. The first fix addressed that line but missed a second bug in the controller (`Get.php:32`) where `json_decode()` returning `null` was passed to a method expecting `array`. When fixing a bug, trace the entire data flow — from the HTTP request through the controller to the service — not just the single line mentioned in the error log. Boundary code (controllers, API handlers) is where null/invalid data enters the system and is often where the real fix belongs.
-
-### No repo URL is a soft blocker, not a hard blocker
-
-If the JIRA ticket description doesn't contain a GitHub repo URL, search the AllDigitalRewards org on GitHub using `gh repo list` before treating it as a hard blocker. Most repos can be found by name (e.g., "dashboard-service" for a Dashboard Service ticket).
-
-### Read JIRA ticket comments before starting work
-
-When picking up a ticket, read ALL comments — not just the description. QA verification reports, blockers, and callouts live in comments. On DS-12396, two detailed QA reports from Stan (pre-merge and post-merge) were in the comments with critical information about blocked tests, security observations, and the KD-008 write-crash defect. Failing to read comments wastes time investigating things QA has already documented.
 
 ### PR title must be the JIRA ticket title
 
@@ -364,11 +366,45 @@ On DS-12411 (12 repos), changes were blasted across all repos simultaneously. Th
 
 On DS-12411, the galileo-fulfillment branch was created from a branch that already had 50+ unrelated changes. This polluted the PR with changes from other tickets. Always verify with `git log --oneline master..HEAD` that only your changes are present before pushing.
 
-## Global Memory
+### JIRA ticket description updates are not "later" — they're part of the commit
 
-These memories persist across conversations and inform agent behavior:
+The description update happens BEFORE or AT THE SAME TIME as creating the PR. Not after. Not when reminded. Build it into the workflow: write the description, THEN create the PR. Every time. If you find yourself creating a PR without having updated the description, stop and do it first.
 
-- **GitHub access:** GitHub token for private repos is in zshrc as `GITHUB_PERSONAL_ACCESS_TOKEN`
-- **JIRA ticket quality:** Always fill Overview, Specification, Risk Analysis, Testing Strategy sections on JIRA tickets
-- **Plan execution:** Always choose subagent-driven development for plan execution
+### Silent failure is worse than crashing
 
+When catching exceptions at data boundaries, don't silently return null. Ask: "If this fails silently, will the user know something is wrong?" If the answer is no, throw a new exception with a clear validation message that gets surfaced to the user. Swallowing bad data hides problems — the user uploads a malformed file and never knows why their records are incomplete. Fail loudly with an actionable error message.
+
+### Don't guess at defaults — read the entity and DB schema
+
+When null-coalescing a missing value, don't invent a default. Read the entity property declaration, the DB column default, and any downstream switch/match that consumes the value. A guessed default that isn't in the valid set causes different bugs later. The entity's own default is the correct fallback.
+
+### Don't overengineer infrastructure fixes
+
+When a file permission error occurs, the fix might be `chmod`, not a rewrite of the caching strategy. Before replacing an existing pattern (file cache, session storage, queue mechanism), understand WHY the pattern exists. Ask the user before ripping out infrastructure — they may just want it to work, not be redesigned.
+
+### Trace the full request lifecycle for async/queue systems
+
+When an error occurs in a system with message queues or async processing, the reported error line may be in a consumer, not the producer. Trace: where does the data enter → how is it stored → what queue carries it → what consumer processes it → where does it fail? Don't stop at the first code match for the error message — PHP internal errors (like `DateTimeZone`) don't name the file, so grepping for the error text won't find the source.
+
+### `??` doesn't catch `false` — use `?:` for falsy values
+
+`getenv()` returns `false` when unset, not `null`. `$var ?? null` won't catch `false`. Use `$var ?: null` when the source can return falsy values like `false`, `''`, or `0`. Remember: `??` checks for `null` only. `?:` checks for any falsy value.
+
+### PHP operator precedence: cast before `??` loses the null check
+
+`(float)$data['key'] ?? 0.00` — the `(float)` cast executes first (triggering the undefined key warning), then `??` never fires because the expression already evaluated to a float. Fix: `(float)($data['key'] ?? 0.00)` — parentheses force `??` to evaluate first.
+
+## Post-PR: CI Monitoring
+
+After pushing and creating a PR, check CI status before moving on:
+
+```bash
+gh pr checks <PR-number> --watch --fail-fast
+```
+
+If CI fails:
+1. Read the failing workflow logs: `gh run view <run-id> --log-failed`
+2. Fix the issue locally (inside Docker), re-test, push
+3. Do NOT disable or skip CI checks — fix the root cause
+
+If CI passes, the ticket is ready for review. Proceed to JIRA update.
