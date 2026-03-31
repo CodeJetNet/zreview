@@ -811,6 +811,37 @@ $ref = $em->getReference('App\Entity\Order', $id);
 $ref = $em->getReference(Order::class, $id);
 ```
 
+**9. Raw SQL: `Statement::executeQuery()` no longer accepts parameters**
+
+In DBAL 3, you could pass parameters inline: `$stmt->execute([$param1, $param2])`. In DBAL 4, `Statement::executeQuery()` takes **zero parameters** — any array you pass is silently ignored. The SQL executes with literal `?` placeholders unbound, causing MySQL error 1064 (syntax error).
+
+This is especially dangerous because **PHP does not error on extra arguments** to user-defined methods — the parameters are silently dropped, and the bug only surfaces at runtime as a database syntax error.
+
+```php
+// OLD (DBAL 3) — parameters passed to Statement::execute()
+$stmt = $connection->prepare($sql);
+$result = $stmt->execute([$param1, $param2]);       // WORKS in DBAL 3
+$result = $stmt->executeQuery([$param1, $param2]);  // SILENTLY IGNORED in DBAL 4!
+
+// NEW (DBAL 4) — use Connection methods directly
+// For SELECT:
+$result = $connection->executeQuery($sql, [$param1, $param2]);
+
+// For INSERT/UPDATE/DELETE:
+$affectedRows = $connection->executeStatement($sql, [$param1, $param2]);
+```
+
+**How to find:** Grep for `->prepare(` followed by `->executeQuery(` or `->executeStatement(` where the execute call passes an array argument. If the `prepare()` result calls `executeQuery([...])` with parameters, it's broken in DBAL 4.
+
+```bash
+grep -rn "->prepare(" src/ --include="*.php"
+# Then check each match — if the prepared statement calls executeQuery/executeStatement with params, fix it
+```
+
+Also check for `executeQuery()` used on DELETE/INSERT/UPDATE statements — DBAL 4 has separate methods:
+- `Connection::executeQuery()` — for SELECT statements (returns `Result`)
+- `Connection::executeStatement()` — for INSERT/UPDATE/DELETE (returns affected row count)
+
 ### Verification Gate
 
 ```bash
