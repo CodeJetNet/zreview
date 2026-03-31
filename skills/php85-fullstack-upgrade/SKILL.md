@@ -1103,3 +1103,4 @@ docker scout cves {app} --only-severity critical,high
 | Missing `serverVersion` in DBAL connection params | Add `'serverVersion' => '8.4'` so DBAL generates correct SQL without a live connection |
 | Only updating `public/index.php` but not CLI/queue entry points | Audit every file that bootstraps the container — `bin/` scripts, task runners, cron jobs |
 | Data providers not converted to `static` in PHPUnit 12 | PHPUnit 12 requires data providers to be `static` methods |
+| Using `prepare()` + `executeQuery(params)` for raw SQL in DBAL 4 | `Statement::executeQuery()` takes zero args — params are silently dropped, causing MySQL 1064 syntax errors at runtime. Use `Connection::executeQuery($sql, $params)` for SELECT, `Connection::executeStatement($sql, $params)` for write operations. Grep for `->prepare(` to audit. |
