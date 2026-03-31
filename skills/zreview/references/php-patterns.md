@@ -217,3 +217,62 @@ canSharePoints(), canResendEmail, canEditAward
 // ✅ GOOD
 isPointSharingEnabled(), hasResendableEmail, isAwardEditable
 ```
+
+---
+
+## 10. Function Naming — Verb Must Match Behavior
+
+**Rule:** Every function name should start with a verb that accurately describes what it does and what it returns. The name is the contract.
+
+### Verb–behavior mapping
+
+| Verb | Behavior | Return |
+|------|----------|--------|
+| `is` / `has` | Tests a condition | `bool` |
+| `get` | Retrieves a value; fails if missing | The value (never `null`) |
+| `find` | Searches for a value; absence is normal | The value or `null` |
+| `create` / `build` | Constructs a new object | The new object |
+| `set` | Assigns a single value on an object | `void` (or `self` for fluent) |
+| `update` | Modifies an existing record (may touch multiple fields) | `void` or the updated object |
+| `delete` / `remove` | Destroys a record or detaches a relationship | `void` or `bool`/`int` (rows affected) |
+| `format` / `parse` | Transforms between representations | The transformed value |
+| `validate` | Checks input correctness | Error array or throws — NOT `bool` |
+| `send` / `dispatch` | Pushes a message or event outward | `void` or a receipt/ID |
+
+### Verbs to avoid
+
+`handle`, `process`, `do`, `manage`, `execute`, `run` — these are filler words that tell the reader nothing. If you can't name the specific action, the function is probably doing too much.
+
+### Redundant context
+
+If the class already provides context, don't repeat it in the method name.
+
+```php
+// ❌ BAD — class is EmailService, "Email" is redundant
+class EmailService {
+    public function sendEmail(string $to, string $body): void {}
+    public function validateEmailAddress(string $email): bool {}  // also wrong verb for bool
+}
+
+// ✅ GOOD
+class EmailService {
+    public function send(string $to, string $body): void {}
+    public function isValidAddress(string $email): bool {}
+}
+```
+
+### Verb–return type mismatches to flag
+
+```php
+// ❌ BAD — verb contradicts return type
+public function getUser(int $id): ?User {}          // "get" but returns null → use "find"
+public function validateEmail(string $e): bool {}   // "validate" but returns bool → use "is"
+public function createReport(): void {}             // "create" but returns nothing → use "generate" or return the report
+public function processPayment(Payment $p): Receipt {} // "process" is vague → use "chargePayment" or "createReceipt"
+
+// ✅ GOOD
+public function findUser(int $id): ?User {}
+public function isValidEmail(string $e): bool {}
+public function createReport(): Report {}
+public function chargePayment(Payment $p): Receipt {}
+```

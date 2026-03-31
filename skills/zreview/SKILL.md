@@ -8,13 +8,13 @@ description: "Pre-commit code review against team standards. Use when: (1) asked
 ## How to Use This Skill
 
 1. Read the diff or files being reviewed
-2. Work through the **Top-10 Checklist** below — flag any violations
+2. Work through the **Checklist** below — flag any violations
 3. Consult `references/` for detailed rules in each category
 4. Report findings in two sections: **🚩 Request Changes** (must-fix) and **💬 Nitpicks** (optional improvements)
 
 ---
 
-## Top-10 Rules Consistently Enforced
+## Top Rules Consistently Enforced
 
 These are ordered by frequency. Flag all of them.
 
@@ -120,6 +120,36 @@ use DateTime;
 $dt = new DateTime();
 ```
 
+### 11. Function Names Must Describe What They Do
+Function names should use a verb prefix that matches their behavior and return type. The name is a contract — readers should know what the function does without reading its body.
+- **`is`/`has`** → returns `bool` (covered in rule #6)
+- **`get`** → returns a value, throws if missing
+- **`find`** → returns a value or `null`
+- **`create`/`build`** → constructs and returns a new object
+- **`set`** → assigns a single value on an object
+- **`update`** → modifies an existing record or object (may touch multiple fields)
+- **`delete`/`remove`** → destroys or detaches a record/relationship
+- **`format`/`parse`** → transforms between representations
+- **`validate`** → checks input, returns errors or throws — should NOT return `bool` (use `is` for that)
+
+Avoid vague verbs (`handle`, `process`, `do`, `manage`) that say nothing about what actually happens. Avoid redundant context in the name — if the class is `EmailService`, use `send()` not `sendEmail()`.
+```php
+// ❌ BAD — name doesn't match behavior
+public function validateEmailAddress(string $email): bool {}  // returns bool, should use "is"
+public function getUser(int $id): ?User {}                     // returns null, should use "find"
+public function processOrder(Order $order): Invoice {}         // vague verb, actually creates an invoice
+public function handleData(array $data): void {}               // "handle" says nothing
+public function changeStatus(int $id, string $status): void {} // "change" is vague, this sets a field
+
+// ✅ GOOD — verb matches the contract
+public function isValidEmailAddress(string $email): bool {}
+public function findUser(int $id): ?User {}
+public function createInvoiceFromOrder(Order $order): Invoice {}
+public function importCsvRows(array $data): void {}
+public function setStatus(int $id, string $status): void {}
+public function deleteExpiredTokens(): int {}
+```
+
 ---
 
 ## Reference Files
@@ -127,7 +157,7 @@ $dt = new DateTime();
 For detailed rules with more examples:
 
 - [`references/security.md`](references/security.md) — Auth, sanitization, injection prevention
-- [`references/php-patterns.md`](references/php-patterns.md) — Types, access modifiers, PHP 8 idioms, imports, DTOs
+- [`references/php-patterns.md`](references/php-patterns.md) — Types, access modifiers, PHP 8 idioms, imports, DTOs, function naming
 - [`references/architecture.md`](references/architecture.md) — Controllers, middleware, SRP, layering
 - [`references/testing.md`](references/testing.md) — Testability, setters for DI, test structure
 - [`references/api-design.md`](references/api-design.md) — Response formats, error payloads, route patterns
@@ -144,6 +174,7 @@ For detailed rules with more examples:
 - Validation logic in middleware, not controllers
 - Early returns, no else-after-return
 - Boolean names start with `is` or `has`
+- Function names use precise verbs matching their behavior (`get`/`find`/`create`/`set`/`delete`, not `handle`/`process`)
 - Docblocks only where they add value beyond types
 
 **Request Changes (blocks when):**
@@ -155,6 +186,7 @@ For detailed rules with more examples:
 - DIY sanitization instead of established libraries
 - Generic `object` return type instead of a proper DTO
 - Classes not imported; FQCN used inline with `\`
+- Function names using vague verbs (`handle`, `process`, `manage`, `do`) or verbs that contradict the return type (e.g., `validate` returning `bool`, `get` returning `null`)
 
 **Nitpick (flags but doesn't block on):**
 - Redundant docblocks
