@@ -1080,6 +1080,7 @@ docker scout cves {app} --only-severity critical,high
 | `utf8mb4` indexes exceed InnoDB limit on `ROW_FORMAT=COMPACT` | MySQL 8.4 defaults to `DYNAMIC` — verify with `information_schema.TABLES` query |
 | Queue consumers / CLI scripts bootstrap the container differently | Audit all entry points in `bin/`, not just `public/index.php` |
 | `DriverManager::getConnection($params, $config)` fails in DBAL 4 | DBAL 4 removed the second `$config` param — pass only connection params |
+| Raw SQL `prepare()` + `executeQuery(params)` silently drops params in DBAL 4 | `Statement::executeQuery()` takes zero args in DBAL 4 — use `Connection::executeQuery($sql, $params)` or `Connection::executeStatement($sql, $params)` instead. Grep for `->prepare(` to find all instances. |
 
 ## Common Mistakes
 
