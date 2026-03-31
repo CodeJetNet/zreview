@@ -15,7 +15,7 @@ Autonomous developer agent for AllDigitalRewards. Given a JIRA ticket key, it ha
 2. **Read ALL ticket comments** — QA reports, blocker callouts, and prior implementation notes live in comments. Read them before planning.
 3. **Gather context** — read linked tickets, parent epic (if any), and check the ticket's status history. A ticket in "Returned from QA" is fundamentally different from one in "To Do."
 4. **Parse the repo URL** from the description (GitHub link under `https://github.com/alldigitalrewards`). If no URL, search the AllDigitalRewards org: `gh repo list alldigitalrewards --limit 100 | grep <service-name>`.
-5. **Clone or pull** the repo
+5. **Check if repo already exists locally** — before cloning, check `~/Desktop/code/<repo-name>`. If it exists, `cd` into it and `git pull`. Only clone if it doesn't exist. Never create a second copy with a suffix (e.g., `repo-ds12443`).
 6. **Check for prior work** — before creating a branch, check if one already exists:
    ```bash
    git branch -r | grep <TICKET-KEY>
@@ -393,6 +393,30 @@ When an error occurs in a system with message queues or async processing, the re
 ### PHP operator precedence: cast before `??` loses the null check
 
 `(float)$data['key'] ?? 0.00` — the `(float)` cast executes first (triggering the undefined key warning), then `??` never fires because the expression already evaluated to a float. Fix: `(float)($data['key'] ?? 0.00)` — parentheses force `??` to evaluate first.
+
+### Check for existing local repos before cloning
+
+ADR repos are often already cloned at `~/Desktop/code/<repo-name>`. On DS-12443, the agent cloned `game-vendor` into a new `game-vendor-ds12443` directory when the repo already existed at `~/Desktop/code/game-vendor`. Always check if the repo already exists locally before cloning. If it exists, `cd` into it and `git pull` — never create a duplicate with a suffix.
+
+### Always transition tickets to "Ready for QA" after PR creation
+
+The JIRA workflow requires walking through multiple transitions: Backlog → Analysis → Selected for Development → Development in Progress → Ready for QA. On DS-12443, the agent stopped at "Development in Progress" instead of completing the full transition to "Ready for QA". After creating a PR with reviewers assigned, always transition all the way to "Ready for QA" — don't leave tickets in an intermediate state.
+
+### Map the full dependency chain before running `composer update`
+
+On the PPS google/cloud-logging fix, the agent bumped `google/cloud-logging` to `^1.34` without first tracing the full dependency chain: `cloud-logging → gax → auth → firebase/php-jwt`. Each hop introduced a new conflict (guzzlehttp/psr7 ^1 vs ^2, ramsey/uuid ^3 vs ^4, firebase/php-jwt ^5 vs ^6). This led to 5+ failed `composer update` attempts. Before changing any version constraint, trace the full dependency tree: `composer why <package>`, `composer info -a <package> <version>`, check what each transitive dep requires. Build a complete picture of what will cascade, then make all changes at once.
+
+### TDD means tests BEFORE implementation — even for dependency upgrades
+
+The skill says "If code is written before its test — delete it and start over." On the PPS fix, the JWT middleware implementation was written before its test, and the LoggerFactory was refactored before its test. The correct sequence: write the test that exercises the new `firebase/php-jwt` v6 API (RED because v6 isn't installed), then bump the dep (GREEN). Same for the logger — write a test that loads `PsrLogger` (RED with v1.22.0), then upgrade (GREEN). Writing code before tests is writing code before tests, regardless of whether the "code" is a new class or a `composer.json` edit.
+
+### `minimum-stability: dev` + `prefer-stable` can still resolve to dev versions
+
+When a `composer.json` has `"minimum-stability": "dev"` and `"prefer-stable": true`, composer may still install dev versions (e.g., `6.x-dev` instead of `v6.11.1`) if the version constraint allows it. Use tilde constraints like `~6.11.0` to pin to stable patch ranges, or explicitly check the resolved version after `composer update` with `composer show <package>`.
+
+### `@runInSeparateProcess` breaks with Xdebug enabled
+
+PHPUnit's `@runInSeparateProcess` captures stderr from the child process. Xdebug writes connection warnings to stderr, which PHPUnit treats as test output and flags as an error. Either disable Xdebug for test runs (`php -d xdebug.mode=off`) or avoid `@runInSeparateProcess`. For singleton reset problems, prefer restructuring the test to avoid needing process isolation.
 
 ## Post-PR: CI Monitoring
 
