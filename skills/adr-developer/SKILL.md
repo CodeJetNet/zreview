@@ -39,7 +39,7 @@ When no JIRA ticket exists yet:
 ### Step 1 — Fetch and Assess the Ticket
 
 1. **Fetch the JIRA ticket** via Atlassian MCP tools — read summary, description, acceptance criteria, and linked repo URL
-2. **Read ALL ticket comments** — QA reports, blocker callouts, and prior implementation notes live in comments. Read them before planning.
+2. **Read ALL ticket comments** — QA reports, blocker callouts, and prior implementation notes live in comments. Read them before planning. (Skip for newly created tickets.)
 3. **Gather context** — read linked tickets, parent epic (if any), and check the ticket's status history. A ticket in "Returned from QA" is fundamentally different from one in "To Do."
 4. **Parse the repo URL** from the description (GitHub link under `https://github.com/alldigitalrewards`). If no URL, search the AllDigitalRewards org: `gh repo list alldigitalrewards --limit 100 | grep <service-name>`.
 5. **Check if repo already exists locally** — before cloning, check `~/Desktop/code/<repo-name>`. If it exists, `cd` into it and `git pull`. Only clone if it doesn't exist. Never create a second copy with a suffix (e.g., `repo-ds12443`).
