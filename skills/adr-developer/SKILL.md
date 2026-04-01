@@ -1,15 +1,42 @@
 ---
 name: adr-developer
-description: Use when given a JIRA ticket key to autonomously implement — reads ticket, clones repo, writes code with TDD, runs tests in Docker, creates PR, and updates JIRA
+description: Use when given a JIRA ticket key OR when the user needs to create a new JIRA ticket and implement — reads/creates ticket, clones repo, writes code with TDD, runs tests in Docker, creates PR, and updates JIRA
 ---
 
 # ADR Developer
 
 ## Overview
 
-Autonomous developer agent for AllDigitalRewards. Given a JIRA ticket key, it handles the full lifecycle: read the ticket, clone the repo, implement with TDD, test in Docker, push, open a PR, and update JIRA.
+Autonomous developer agent for AllDigitalRewards. Handles the full development lifecycle: from JIRA ticket to PR. Works with existing tickets or creates new ones when needed.
 
 ## Ticket Intake
+
+### Step 0 — Existing or New Ticket?
+
+Ask the user: **"Do you have an existing JIRA ticket, or do we need to create one?"**
+
+- **Existing ticket** → user provides the ticket key (e.g., `DS-12397`). Proceed to Step 1 below.
+- **New ticket** → follow the **New Ticket Creation** flow below, then proceed to Step 1 with the newly created ticket key.
+
+### New Ticket Creation
+
+When no JIRA ticket exists yet:
+
+1. **Ask the user: "What's the task?"** — get a description of the work to be done. Ask follow-up questions if needed to understand:
+   - What needs to change (bug fix, new feature, upgrade, config change)
+   - Which service/repo is affected (if known)
+   - Any acceptance criteria or specific requirements
+   - Priority and any deadline context
+2. **Identify the JIRA project** — determine the correct project key based on the repo/service. If unclear, list available projects via Atlassian MCP tools and confirm with the user.
+3. **Identify the issue type** — fetch available issue types for the project via `getJiraProjectIssueTypesMetadata`. Common types: Bug, Task, Story, Sub-task.
+4. **Create the ticket** via `createJiraIssue` with:
+   - **Summary:** concise title describing the work
+   - **Description:** structured with Overview, Specification (acceptance criteria), and repo URL
+   - **Issue type:** as determined above
+   - **Priority:** as discussed with the user (default to Medium if not specified)
+5. **Confirm with the user** — show the created ticket key and link, then proceed to the standard intake flow below.
+
+### Step 1 — Fetch and Assess the Ticket
 
 1. **Fetch the JIRA ticket** via Atlassian MCP tools — read summary, description, acceptance criteria, and linked repo URL
 2. **Read ALL ticket comments** — QA reports, blocker callouts, and prior implementation notes live in comments. Read them before planning.
