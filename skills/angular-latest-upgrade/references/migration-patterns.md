@@ -296,6 +296,31 @@ If the build fails with budget errors after upgrading, either:
 
 ---
 
+## Dockerfile Template
+
+```dockerfile
+# Build stage -- use Node LTS
+FROM node:22-alpine AS builder
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY . .
+RUN npm run build -- --configuration production
+
+# Production stage -- use current nginx
+FROM nginx:1.27-alpine
+COPY --from=builder /app/dist/{app-name}/browser /usr/share/nginx/html
+```
+
+**Key updates:**
+- Node version: use current LTS (22.x), not a non-LTS odd version (19, 21, 23)
+- Use `node:22-alpine` for smaller image
+- nginx: update to `1.27-alpine` (or latest stable)
+- Use `npm ci` instead of `npm install` for reproducible builds
+- **Output path:** Angular 17+ with the `application` builder outputs to `dist/{app-name}/browser/` (not `dist/{app-name}/`)
+
+---
+
 ## Docker Runtime Env Injection Patterns
 
 Many Angular Docker setups inject environment variables at container start time (not build time) using `sed` or `envsubst` on the built JavaScript files. This is because Angular bakes environment values into the bundle at build time, but production deploys need different values per environment.
