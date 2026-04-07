@@ -340,41 +340,11 @@ If `strictTemplates` causes build failures, fix template type errors before proc
 
 ## Phase 9: Docker and CI Updates
 
-### Dockerfile
+**Dockerfile:** Use `node:22-alpine` (LTS) for build stage, `nginx:1.27-alpine` for production, `npm ci` for reproducible installs. **Output path:** Angular 17+ with `application` builder outputs to `dist/{app-name}/browser/` (not `dist/{app-name}/`).
 
-```dockerfile
-# Build stage -- use Node LTS
-FROM node:22-alpine AS builder
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci
-COPY . .
-RUN npm run build -- --configuration production
+**CI:** Use `actions/setup-node@v4` with `node-version: '22'`. Align Node version across CI, Docker, and local dev.
 
-# Production stage -- use current nginx
-FROM nginx:1.27-alpine
-COPY --from=builder /app/dist/{app-name}/browser /usr/share/nginx/html
-```
-
-**Key updates:**
-- Node version: use current LTS (22.x), not a non-LTS odd version
-- nginx: update to `1.27-alpine` (or latest stable)
-- Use `npm ci` instead of `npm install` for reproducible builds
-- **Output path:** Angular 17+ with the `application` builder outputs to `dist/{app-name}/browser/` (not `dist/{app-name}/`)
-
-For runtime environment injection patterns and persistent build cache configuration, see `references/migration-patterns.md` sections "Docker Runtime Env Injection Patterns" and "Angular Persistent Build Cache".
-
-### CI Workflow Updates
-
-```yaml
-- name: Setup Node
-  uses: actions/setup-node@v4
-  with:
-    node-version: '22'
-    cache: 'npm'
-```
-
-**Node version alignment:** Ensure CI, Docker, and local development all use the same Node LTS major version.
+For runtime env injection patterns and persistent build cache, see `references/migration-patterns.md` sections "Docker Runtime Env Injection Patterns" and "Angular Persistent Build Cache".
 
 ### Verification Gate
 
