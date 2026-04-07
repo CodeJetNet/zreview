@@ -29,12 +29,18 @@ When no JIRA ticket exists yet:
    - Priority and any deadline context
 2. **Identify the JIRA project** — determine the correct project key based on the repo/service. If unclear, list available projects via Atlassian MCP tools and confirm with the user.
 3. **Identify the issue type** — fetch available issue types for the project via `getJiraProjectIssueTypesMetadata`. Common types: Bug, Task, Story, Sub-task.
-4. **Create the ticket** via `createJiraIssue` with:
+4. **Fetch existing labels** — query recent tickets in the project to get the pool of existing labels:
+   ```
+   searchJiraIssuesUsingJql(jql: "project = <KEY> AND labels IS NOT EMPTY ORDER BY updated DESC", fields: ["labels"], maxResults: 50)
+   ```
+   Deduplicate the labels from results into a flat list. **Never invent new labels.** Only use labels that already exist in the project. Present relevant labels to the user and let them pick which ones apply (or none). If no existing labels are relevant, create the ticket without labels — do not make up new ones.
+5. **Create the ticket** via `createJiraIssue` with:
    - **Summary:** concise title describing the work
    - **Description:** structured with Overview, Specification (acceptance criteria), and repo URL
    - **Issue type:** as determined above
    - **Priority:** as discussed with the user (default to Medium if not specified)
-5. **Confirm with the user** — show the created ticket key and link, then proceed to the standard intake flow below.
+   - **Labels:** only labels selected by the user from the existing label pool (via `additional_fields: {"labels": ["selected-label"]}`)
+6. **Confirm with the user** — show the created ticket key and link, then proceed to the standard intake flow below.
 
 ### Step 1 — Fetch and Assess the Ticket
 
