@@ -15,6 +15,7 @@ Detailed code examples and migration patterns for each phase of an Angular major
 - [SCSS/Sass Processor Migration](#scsssass-processor-migration)
 - [Angular Budget Updates](#angular-budget-updates)
 - [Docker Runtime Env Injection Patterns](#docker-runtime-env-injection-patterns)
+- [CI Workflow Updates](#ci-workflow-updates)
 - [Angular Persistent Build Cache](#angular-persistent-build-cache)
 - [Post-Upgrade Modernization (Future Work)](#post-upgrade-modernization-future-work)
 
