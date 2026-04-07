@@ -14,6 +14,7 @@ Detailed code examples and migration patterns for each phase of an Angular major
 - [TypeScript Config Detailed Settings](#typescript-config-detailed-settings)
 - [SCSS/Sass Processor Migration](#scsssass-processor-migration)
 - [Angular Budget Updates](#angular-budget-updates)
+- [Dockerfile Template](#dockerfile-template)
 - [Docker Runtime Env Injection Patterns](#docker-runtime-env-injection-patterns)
 - [CI Workflow Updates](#ci-workflow-updates)
 - [Angular Persistent Build Cache](#angular-persistent-build-cache)
