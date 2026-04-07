@@ -312,18 +312,7 @@ npx ng test --watch=false
 
 Remove `src/polyfills.ts` (if only `zone.js` import), update `.browserslistrc` to modern browsers only. See `references/migration-patterns.md` section "polyfills.ts Removal Steps" for the step-by-step process.
 
-### .browserslistrc Modernization
-
-```
-last 2 Chrome versions
-last 1 Firefox version
-last 2 Edge major versions
-last 2 Safari major versions
-last 2 iOS major versions
-Firefox ESR
-```
-
-Remove any IE references -- Angular dropped IE support in v13.
+Update `.browserslistrc` to modern browsers only (last 2 Chrome/Edge/Safari/iOS, last 1 Firefox, Firefox ESR). Remove any IE references -- Angular dropped IE support in v13.
 
 ### Verification Gate
 
