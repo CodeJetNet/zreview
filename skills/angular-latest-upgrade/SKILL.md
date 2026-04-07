@@ -312,31 +312,9 @@ npx ng test --watch=false
 
 ## Phase 5: Update Remaining npm Dependencies
 
-### Production Dependencies
+**Production:** `rxjs` 7.8.x (RxJS 8 not yet required), `zone.js` 0.15.x, `tslib` latest 2.x, `file-saver` latest 2.x. Note EOL deps: `bootstrap` 4.x (EOL, plan 5.x), `ckeditor4-angular` (EOL June 2023), `moment` (maintenance-only).
 
-| Package | Notes |
-|---------|-------|
-| `rxjs` | Stay on 7.8.x -- RxJS 8 not required yet |
-| `zone.js` | 0.15.x still valid; 0.16 optional |
-| `tslib` | Update to latest 2.x |
-| `bootstrap` | If on 4.x, update to 4.6.2 (latest 4.x). Bootstrap 4 is EOL -- consider 5.x as future work |
-| `ckeditor4-angular` | CKEditor 4 is EOL (June 2023). Pin to working version; plan CKEditor 5 migration as future work |
-| `moment` | If present, consider replacing with `date-fns` or native `Intl`/`Temporal` (moment is maintenance-only) |
-| `file-saver` | Update to latest 2.x |
-
-### Dev Dependencies
-
-| Package | Notes |
-|---------|-------|
-| `@types/jasmine` | Match jasmine-core major |
-| `@types/node` | Match your Node LTS major (22.x) |
-| `jasmine-core` | Update to latest (6.x) |
-| `karma` | Update to latest 6.x |
-| `karma-chrome-launcher` | Update to latest 3.x |
-| `karma-coverage` | Update to latest 2.x |
-| `karma-jasmine` | Update to latest 5.x |
-| `karma-jasmine-html-reporter` | Update to latest 2.x |
-| `puppeteer` | Update to latest (24.x) -- used for headless Chrome |
+**Dev:** `@types/jasmine` (match jasmine-core major), `@types/node` (match Node LTS 22.x), `jasmine-core` 6.x, `karma` 6.x, `karma-chrome-launcher` 3.x, `karma-coverage` 2.x, `karma-jasmine` 5.x, `karma-jasmine-html-reporter` 2.x, `puppeteer` 24.x.
 
 ### Verification Gate
 
