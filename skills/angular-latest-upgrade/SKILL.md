@@ -27,45 +27,20 @@ Phased migration strategy for upgrading Angular applications to the latest stabl
 
 ## Phase Order
 
-```dot
-digraph upgrade_flow {
-    "Start" [shape=doublecircle];
-    "Discovery: Full Repo Review" [shape=box];
-    "Generate Repo-Specific Plan" [shape=box];
-    "Plan Self-Verification" [shape=diamond];
-    "Revise plan" [shape=box];
-    "Pre-flight: Dependency Compatibility" [shape=box];
-    "Phase 1: Behavioral Baseline" [shape=box];
-    "Phase 2: Unit Test Coverage" [shape=box];
-    "Phase 3: Sequential ng update" [shape=box];
-    "Phase 4: Remove Deprecated Tooling" [shape=box];
-    "Phase 5: Update npm Dependencies" [shape=box];
-    "Phase 6: Modernize Test Config" [shape=box];
-    "Phase 7: Remove Legacy Files" [shape=box];
-    "Phase 8: Modernize TypeScript Config" [shape=box];
-    "Phase 9: Docker and CI Updates" [shape=box];
-    "Phase 10: Final Verification" [shape=box];
-    "Done" [shape=doublecircle];
-
-    "Start" -> "Discovery: Full Repo Review";
-    "Discovery: Full Repo Review" -> "Generate Repo-Specific Plan";
-    "Generate Repo-Specific Plan" -> "Plan Self-Verification";
-    "Plan Self-Verification" -> "Pre-flight: Dependency Compatibility" [label="pass"];
-    "Plan Self-Verification" -> "Revise plan" [label="discrepancies found"];
-    "Revise plan" -> "Plan Self-Verification";
-    "Pre-flight: Dependency Compatibility" -> "Phase 1: Behavioral Baseline";
-    "Phase 1: Behavioral Baseline" -> "Phase 2: Unit Test Coverage";
-    "Phase 2: Unit Test Coverage" -> "Phase 3: Sequential ng update";
-    "Phase 3: Sequential ng update" -> "Phase 4: Remove Deprecated Tooling";
-    "Phase 4: Remove Deprecated Tooling" -> "Phase 5: Update npm Dependencies";
-    "Phase 5: Update npm Dependencies" -> "Phase 6: Modernize Test Config";
-    "Phase 6: Modernize Test Config" -> "Phase 7: Remove Legacy Files";
-    "Phase 7: Remove Legacy Files" -> "Phase 8: Modernize TypeScript Config";
-    "Phase 8: Modernize TypeScript Config" -> "Phase 9: Docker and CI Updates";
-    "Phase 9: Docker and CI Updates" -> "Phase 10: Final Verification";
-    "Phase 10: Final Verification" -> "Done";
-}
-```
+1. Discovery: Full Repo Review
+2. Generate Repo-Specific Plan
+3. Plan Self-Verification (loop until no discrepancies)
+4. Pre-flight: Dependency Compatibility
+5. Phase 1: Behavioral Baseline
+6. Phase 2: Unit Test Coverage
+7. Phase 3: Sequential `ng update`
+8. Phase 4: Remove Deprecated Tooling
+9. Phase 5: Update npm Dependencies
+10. Phase 6: Modernize Test Config
+11. Phase 7: Remove Legacy Files
+12. Phase 8: Modernize TypeScript Config
+13. Phase 9: Docker and CI Updates
+14. Phase 10: Final Verification
 
 **Every phase ends with: build, test, commit.** Each phase gets its own commit for easy rollback.
 
