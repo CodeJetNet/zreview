@@ -451,6 +451,10 @@ When a `composer.json` has `"minimum-stability": "dev"` and `"prefer-stable": tr
 
 PHPUnit's `@runInSeparateProcess` captures stderr from the child process. Xdebug writes connection warnings to stderr, which PHPUnit treats as test output and flags as an error. Either disable Xdebug for test runs (`php -d xdebug.mode=off`) or avoid `@runInSeparateProcess`. For singleton reset problems, prefer restructuring the test to avoid needing process isolation.
 
+### Never create new JIRA labels — only use existing ones
+
+The project accumulated a massive number of pointless labels because tickets were created with invented labels. When creating tickets, always query existing labels from recent project tickets first, present them to the user, and only apply labels they select. If no existing label fits, leave labels empty. Never invent a new label — this is a directive from management.
+
 ## Post-PR: CI Monitoring
 
 After pushing and creating a PR, check CI status before moving on:
