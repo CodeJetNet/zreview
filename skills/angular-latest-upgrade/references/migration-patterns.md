@@ -316,6 +316,11 @@ COPY --from=builder /app/dist/{app-name}/browser /usr/share/nginx/html
 
 **If the project uses `environment.ts` file replacement** and migrated to the `application` builder, verify that `fileReplacements` in `angular.json` still works. The `application` builder handles this differently than the `browser` builder -- test with both `ng serve` (dev) and `ng build --configuration production` (prod).
 
+**Apple Silicon (M1/M2/M3):** If the build runs on ARM and any dependency has native bindings:
+```dockerfile
+FROM --platform=linux/amd64 node:22-alpine AS builder
+```
+
 ---
 
 ## Angular Persistent Build Cache
