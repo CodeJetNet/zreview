@@ -323,6 +323,24 @@ FROM --platform=linux/amd64 node:22-alpine AS builder
 
 ---
 
+## CI Workflow Updates
+
+**GitHub Actions:**
+```yaml
+- name: Checkout
+  uses: actions/checkout@v4
+
+- name: Setup Node
+  uses: actions/setup-node@v4
+  with:
+    node-version: '22'
+    cache: 'npm'
+```
+
+**Node version alignment:** Ensure CI, Docker, and local development all use the same Node LTS major version.
+
+---
+
 ## Angular Persistent Build Cache
 
 Angular 17+ uses a persistent build cache (`.angular/cache/`). In CI, this can cause stale builds:
