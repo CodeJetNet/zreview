@@ -123,25 +123,13 @@ Review the plan in totality and actively look for:
 - Build config changes that don't match the actual `angular.json` structure
 - Missing components or services that would be affected by breaking changes
 
-### Step 2: Generate Verification Questions
+### Step 2: Generate and Answer Verification Questions
 
-Generate 3-5 verification questions that would expose errors in the plan. Examples:
+Generate 3-5 questions that would expose errors (e.g., "Are there third-party packages with Angular version peer dependencies that would block `ng update`?", "Does the karma.conf.js reference packages that aren't in package.json?"). For each question, **go back to the codebase** and verify with grep/glob/file reads. Do not answer from memory.
 
-- "Does the plan account for every file that imports from `@angular/http` (removed in v15)?"
-- "Are there third-party packages with Angular version peer dependencies that would block `ng update`?"
-- "Does the repo use the legacy Webpack builder or the modern application/esbuild builder?"
-- "Are there lazy-loaded modules that need route config updates?"
-- "Does the karma.conf.js reference packages that aren't in package.json?"
+### Step 3: Revise the Plan
 
-### Step 3: Answer Each Question Independently
-
-For each question, **go back to the codebase** and verify. Do not answer from memory or assumption. Use grep, glob, and file reads to confirm.
-
-### Step 4: Revise the Plan
-
-Update the repo-specific plan based on findings. If no changes needed, explicitly state "Plan verified -- no discrepancies found."
-
-**Only proceed to implementation after this verification loop passes.**
+Update based on findings. If no changes needed, state "Plan verified -- no discrepancies found." **Only proceed after this verification loop passes.**
 
 ---
 
