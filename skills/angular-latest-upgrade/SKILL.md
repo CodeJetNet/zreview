@@ -265,29 +265,11 @@ Both must pass before proceeding to the next major version.
 
 ## Phase 4: Remove Deprecated Tooling
 
-### Protractor (deprecated since 2023, removed from Angular CLI)
+**Protractor:** `npm uninstall protractor @types/jasminewd2 jasmine-spec-reporter ts-node && rm -rf e2e/`. Remove `"e2e"` architect target from `angular.json` and `"e2e"` script from `package.json`. Keep `puppeteer` if used by `karma-chrome-launcher`.
 
-```bash
-npm uninstall protractor @types/jasminewd2 jasmine-spec-reporter ts-node
-rm -rf e2e/
-```
+**TSLint:** `npm uninstall tslint codelyzer && rm tslint.json`. Remove `"lint"` architect target from `angular.json` if it uses `@angular-devkit/build-angular:tslint`.
 
-In `angular.json`, remove the `"e2e"` architect target. In `package.json`, remove `"e2e"` script.
-
-**Note:** Keep `puppeteer` if it's used by `karma-chrome-launcher` for headless Chrome in unit tests.
-
-### TSLint (deprecated since 2019, builder removed from Angular CLI)
-
-```bash
-npm uninstall tslint codelyzer
-rm tslint.json
-```
-
-In `angular.json`, remove the `"lint"` architect target if it uses `@angular-devkit/build-angular:tslint`. In `package.json`, remove `"lint"` script.
-
-### karma-coverage-istanbul-reporter
-
-If referenced but not in `package.json` (common ghost dependency), or if installed -- replace with `karma-coverage`. See `references/migration-patterns.md` section "karma.conf.js Coverage Reporter Replacement" for code patterns.
+**karma-coverage-istanbul-reporter:** Replace with `karma-coverage`. See `references/migration-patterns.md` section "karma.conf.js Coverage Reporter Replacement".
 
 ### Verification Gate
 
