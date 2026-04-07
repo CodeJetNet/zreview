@@ -390,20 +390,7 @@ docker build -t {app-name}-test .
 
 ## Phase 10: Final Verification
 
-Clean slate rebuild from scratch:
-
-```bash
-rm -rf node_modules dist .angular package-lock.json
-npm install
-npx ng build --configuration production
-npx ng test --watch=false --code-coverage
-npx ng serve  # Smoke test: app loads, key features work, no console errors
-npm audit
-docker build -t {app-name}-test .
-docker run -p 8080:80 {app-name}-test  # Verify at http://localhost:8080
-```
-
-**Expected:** Build succeeds, all tests pass, no security vulnerabilities, Docker image builds and serves correctly.
+Clean slate rebuild: `rm -rf node_modules dist .angular package-lock.json && npm install`. Then run production build, full test suite with coverage, `npm audit`, Docker build, and smoke test the running container. All must pass.
 
 ---
 
