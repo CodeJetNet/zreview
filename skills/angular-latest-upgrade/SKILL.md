@@ -75,17 +75,7 @@ Read and analyze the following (adapt to what exists in the repo):
 
 ### Step 2: Map the Application Architecture
 
-Document:
-- **Bootstrap method:** NgModule (`platformBrowserDynamic().bootstrapModule()`) or Standalone (`bootstrapApplication()`)
-- **Component style:** NgModule declarations or standalone components
-- **Routing:** RouterModule.forRoot() or provideRouter()
-- **HTTP:** HttpClientModule or provideHttpClient()
-- **Forms:** ReactiveFormsModule, FormsModule, or both
-- **State management:** NgRx, Akita, simple services, signals
-- **UI framework:** Angular Material, PrimeNG, Bootstrap, Tailwind, custom
-- **Third-party integrations:** Rich text editors (CKEditor, Quill), charting libs, file upload, etc.
-- **Test framework:** Karma/Jasmine, Jest, Cypress, Playwright
-- **Build system:** Webpack (legacy) or esbuild/application builder (modern)
+Document: bootstrap method (NgModule vs Standalone), component style, routing approach, HTTP setup, forms, state management, UI framework, third-party integrations, test framework, and build system (Webpack legacy vs esbuild/application modern).
 
 ### Step 3: Identify Current Versions and Upgrade Path
 
