@@ -61,6 +61,26 @@ Phased migration guide for upgrading Angular applications to the latest stable v
 - Docker/CI updates for current Node LTS
 - Post-upgrade modernization paths (standalone components, signals, zoneless)
 
+## Tools
+
+Standalone monitoring scripts for production observability. These run locally via crontab and post to Slack.
+
+### prod-log-audit
+
+Daily production log audit. Queries GCP Cloud Logging for prod4 and card-services2 clusters, categorizes errors (application bugs, SSL, FPM capacity, dead services, slow requests, timeouts), and posts a formatted summary to Slack.
+
+- **Runtime:** Python 3.8+ (no dependencies)
+- **Schedule:** Daily at 8am
+- **Setup:** [tools/prod-log-audit/README.md](tools/prod-log-audit/README.md)
+
+### qa-error-monitor
+
+Hourly QA error monitor with deduplication and JIRA integration. Tracks error lifecycle (NEW, RECURRING, SPIKE, TRACKED), auto-syncs with JIRA tickets, and provides one-click ticket creation from Slack.
+
+- **Runtime:** PHP 8.1+
+- **Schedule:** Hourly during business hours (Mon-Fri)
+- **Setup:** [tools/qa-error-monitor/README.md](tools/qa-error-monitor/README.md)
+
 ## Structure
 
 ```
@@ -68,20 +88,21 @@ zreview/
 ├── .claude-plugin/
 │   ├── plugin.json
 │   └── marketplace.json
-└── skills/
-    ├── zreview/
-    │   ├── SKILL.md
-    │   └── references/
-    │       ├── security.md
-    │       ├── php-patterns.md
-    │       ├── architecture.md
-    │       ├── testing.md
-    │       ├── api-design.md
-    │       └── docker-ci.md
-    ├── adr-developer/
-    │   └── SKILL.md
-    ├── php85-fullstack-upgrade/
-    │   └── SKILL.md
-    └── angular-latest-upgrade/
-        └── SKILL.md
+├── skills/
+│   ├── zreview/
+│   │   ├── SKILL.md
+│   │   └── references/
+│   ├── adr-developer/
+│   │   └── SKILL.md
+│   ├── php85-fullstack-upgrade/
+│   │   └── SKILL.md
+│   └── angular-latest-upgrade/
+│       └── SKILL.md
+└── tools/
+    ├── prod-log-audit/
+    │   ├── README.md
+    │   └── monitor.py
+    └── qa-error-monitor/
+        ├── README.md
+        └── monitor.php
 ```
