@@ -1,0 +1,11 @@
+# State files
+seen-errors.json
+
+# Config files with secrets
+slack-webhook
+jira-token
+jira-email
+jira-account-id
+
+# Logs
+*.log
