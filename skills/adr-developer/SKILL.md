@@ -156,9 +156,11 @@ Full checklist:
 
 ### JIRA Ticket Description (Do This BEFORE Creating the PR)
 
-The JIRA description is a core deliverable, not an afterthought. Update it with: Overview, Specification (acceptance criteria), Risk Analysis, and the **Testing Strategy v3 template** (canonical source: `~/Downloads/DS-12514-testing-strategy-v3-template.md`).
+The JIRA description is a core deliverable, not an afterthought. Update it with: Overview, Specification (acceptance criteria), Risk Analysis, and the **Testing Strategy v3 template**.
 
-**Hard rule: PR creation is BLOCKED until the Section 10 Pre-QA Handoff Checklist is complete.** Every box must be checked. Testing Strategy is mandatory for every ticket — no exceptions for "small," "config-only," or "obvious" changes. If code changes, the ticket has a Testing Strategy.
+**Invoke the `testing-strategy` skill** to author the Testing Strategy section. That skill owns the canonical v3 template (at `~/.claude/skills/testing-strategy/references/template.md`), the absolute rules, and the Pre-QA Handoff Checklist. Do not paraphrase or hand-roll the Testing Strategy section — read the skill, copy the template, fill it out.
+
+**Hard rule: PR creation is BLOCKED until the Section 10 Pre-QA Handoff Checklist (in the testing-strategy skill) is complete.** Every box must be checked. Testing Strategy is mandatory for every ticket — no exceptions for "small," "config-only," or "obvious" changes. If code changes, the ticket has a Testing Strategy.
 
 **Non-negotiables from the v3 template:**
 - Every TC starts at **Step 0** (zero-knowledge baseline — env, role, account, credentials, auth, prerequisites, mocked services, tags). Cross-references allowed but the slot is required per TC.
