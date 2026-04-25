@@ -156,7 +156,23 @@ Full checklist:
 
 ### JIRA Ticket Description (Do This BEFORE Creating the PR)
 
-The JIRA description is a core deliverable, not an afterthought. Update it with: Overview, Specification (acceptance criteria), Risk Analysis, and Testing Strategy (including QA manual steps). The description must reflect what was actually built for THIS ticket. Reference tickets are pattern guides, not specs — assess the actual repo independently.
+The JIRA description is a core deliverable, not an afterthought. Update it with: Overview, Specification (acceptance criteria), Risk Analysis, and the **Testing Strategy v3 template** (canonical source: `~/Downloads/DS-12514-testing-strategy-v3-template.md`).
+
+**Hard rule: PR creation is BLOCKED until the Section 10 Pre-QA Handoff Checklist is complete.** Every box must be checked. Testing Strategy is mandatory for every ticket — no exceptions for "small," "config-only," or "obvious" changes. If code changes, the ticket has a Testing Strategy.
+
+**Non-negotiables from the v3 template:**
+- Every TC starts at **Step 0** (zero-knowledge baseline — env, role, account, credentials, auth, prerequisites, mocked services, tags). Cross-references allowed but the slot is required per TC.
+- Every step has all four labeled components: **Action** · **Expected Result** · **Wait Condition** · blank **Actual Result**. API uses `Request` / `Response` (equivalent labels). Linear block format — never tables for execution rows.
+- **Newman collection mandatory** for any API change. Lives at `tests/newman/<service>/`. The Playwright QA framework reads Newman directly to author API tests; markdown Request/Response in the ticket must mirror the Newman request exactly.
+- **QA verification surface is restricted:** browser DOM/URL/console/network + public HTTP API responses ONLY. No DB queries, no container shell, no log access. State changes that are DB-only must either get a public surface added in this PR (Section 5d Externally-Observable State Mapping) or move to per-TC Dev-Only Verification.
+- **Visually-relevant UI steps include inline Expected + Actual screenshot slots** within the step block — never as generic ticket attachments. Skip screenshot slots on steps with purely textual assertions.
+- **`data-testid` fallback rule:** if a UI element lacks an accessible name, dev MUST add `data-testid` in the same PR. Never ship a TC with `nth-child`, class-name, or XPath locators.
+- **Tags per TC:** `@smoke` · `@regression` · `@slow` · `@flaky-quarantine`.
+- **Accessibility scan default-on** for UI TCs (axe-core); zero violations except an explicitly tracked allowlist.
+- **Ticket size capped at 5 TCs.** If you'd need 6+, split the ticket before writing the strategy.
+- **Cold-read rule (final gate):** a stranger reading the ticket with zero prior context must be able to manually execute every TC top-to-bottom without asking a question. If they would need to ask, the TC is incomplete.
+
+The description must reflect what was actually built for THIS ticket. Reference tickets are pattern guides, not specs — assess the actual repo independently.
 
 ### Push & PR
 
