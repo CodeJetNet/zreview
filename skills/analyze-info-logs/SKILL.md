@@ -19,13 +19,13 @@ Production INFO/NOTICE/DEBUG logs cost money on GCP. This skill classifies each 
 
 ## Workflow
 
-1. Find the newest `*.md` in `/Users/josephmuto/scripts/prod-service-info/info-reports/`. Filenames are UTC timestamps; sort descending.
-2. Read it.
-3. **Idempotency check** — if the table already has a `Verdict` column, ask the user whether to re-run (will overwrite prior verdicts) or skip. Do not silently overwrite.
+1. Find the newest `*.md` in `/Users/josephmuto/scripts/prod-service-info/info-reports/`. Filenames are UTC timestamps; sort descending. If the directory is empty, abort and tell the user no report exists yet.
+2. Read it. **Structural validation:** confirm the file contains a `**Summary:**` line and a markdown table with the expected `Qty | Service | Message | Exception | Date` header. If either is missing, abort — the file is malformed or someone changed the monitor's output format.
+3. **Idempotency check** — if the table header row contains `| Verdict |`, ask the user whether to re-run (will overwrite prior verdicts) or skip. Do not silently overwrite.
 4. Classify each row using the criteria below.
 5. Compute:
    - Counts per verdict tag.
-   - Estimated volume reduction = `sum(qty for REMOVE rows) / total entries fetched` (rounded to nearest %).
+   - Estimated volume reduction = `sum(qty for REMOVE rows) / N`, where `N` is the "entries fetched" number from the existing `**Summary:**` line (not the sum of the table's Qty column — they may diverge if monitor.py is later changed to dedupe or sample). Rounded to nearest %.
 6. Rewrite the file in place using the Edit tool:
    - Add a `**Verdicts:**` line directly below the existing `**Summary:**` line.
    - Append a `Verdict` column to the table header, separator row, and every data row.
