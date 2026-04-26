@@ -15,7 +15,7 @@ Production INFO/NOTICE/DEBUG logs cost money on GCP. This skill classifies each 
 - A new file has just landed in `~/scripts/prod-service-info/info-reports/`.
 - User is reviewing GCP logging cost.
 
-**Do NOT use** for `>=WARNING` reports (`error-reports/`) — those have different criteria. Use `analyze-warning-logs` (sibling skill, future) instead.
+**Do NOT use** for `>=WARNING` reports (`error-reports/`) — those have different criteria. Use `analyze-warning-logs` instead.
 
 ## Workflow
 
