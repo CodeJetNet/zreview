@@ -41,6 +41,8 @@ Production INFO/NOTICE/DEBUG logs cost money on GCP. This skill classifies each 
 
 **Reasoning style:** one line, ≤90 chars, lead with the *why* (the criterion that triggered the verdict). Bias toward decisive verdicts.
 
+**Delimiter:** an em-dash (`—`, U+2014) separates the verdict tag from the reason — e.g., `REMOVE — duplicates GCP HTTP access log`. Do not substitute ASCII hyphens (`-`) or colons (`:`); the rendered table relies on consistent delimiters for at-a-glance scanning.
+
 **Mis-severity flag:** If a log line at INFO looks like it should be at WARNING (failures, errors, exceptional outcomes that imply something went wrong), tag it `KEEP` and prepend the reason with `MIS-SEVERITY:`. This surfaces a separate axis of cleanup the user may want to file.
 
 ## Output Format
