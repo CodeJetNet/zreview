@@ -207,7 +207,7 @@ The description must reflect what was actually built for THIS ticket. Reference 
      ### Have the changes been verified to comply with the security policy requirements?
      Yes
      ```
-   - **Reviewers:** jhoughtelin and zwalden
+   - **Reviewers:** jhoughtelin, zwalden, and nicholasmejia
 
 ### Post-PR: CI Monitoring
 
