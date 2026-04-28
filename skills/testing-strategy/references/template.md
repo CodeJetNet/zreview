@@ -1077,6 +1077,84 @@ When the ticket reports a defect, the report body satisfies this structure:
 
 ---
 
+## Appendix A — Field Reference (30 fields by category)
+
+Quick lookup of every field in the template, organized so devs can confirm completeness without re-scanning all 24 sections. Per the "I Don't Know" Protocol (rule #15), every field is in one of three states: a value, `Unknown — QA to verify <how>`, or `N/A — <why>`. Blank is never permitted.
+
+### Always Required (every ticket, every type)
+
+| # | Field | Section | Purpose |
+|---|---|---|---|
+| 1 | Behavior Change (Before / After / Primary Signal) | §1 | QA writes the right Playwright assertions |
+| 2 | PR Reference + Coverage Map | §2 | Every changed function maps to a TC step or unit test |
+| 3 | Newman collection (if API change) | §2 | Tier-1 contract; markdown Request/Response mirrors Newman exactly |
+| 4 | Depends On (top-of-ticket) | §3 | QA pre-seeds upstream tickets before Phase 2 |
+| 5 | QA Environment (URL, deploy status, brand-new-domain flag, refresh cadence) | §4 | QA targets the right host with the right deploy state |
+| 6 | Test Data Required + Lifecycle | §5 | Dev seeds via API/admin/deploy hook (QA cannot DB-seed) |
+| 7 | Regression Impact (downstream consumers, risk level) | §6 | Catches blast-radius blind spots |
+| 8 | Dependencies & Deployment + Smoke Verification | §7a | One-shot check that the fix is actually live |
+| 9 | Mocking Policy (REAL/SANDBOX/MOCK per dependency) | §7b | Failure-path TCs use MOCK; happy path prefers REAL/SANDBOX |
+| 10 | Compliance Flags (PII/BIPA/PCI/HIPAA/COPPA/SOX/ADA) | §7c | Triggers extra TCs; missing flag is a ship-stopper |
+| 11 | Acceptance Criteria (numbered, atomic, observable) | §8 | Every AC mapped via §10 |
+| 12 | 35-row Test-Angles Matrix (§9a) | §9a | Forces enumeration of every coverage angle |
+| 13 | AC ↔ TC two-way mapping | §10 | Forward + reverse; orphan TCs justified |
+| 14 | OUT-OF-SCOPE Justifications | §18 | Each item: "why it cannot fail in prod" |
+| 15 | Adversarial Pre-Mortem | §20 | Promote-or-justify per row; min ≥10 Story / ≥5 Bug / ≥15 Epic |
+| 16 | Pre-QA Handoff Checklist | §23 | 22-item gate; every box checked before "Ready for QA" |
+
+### Required for UI Test Cases
+
+| # | Field | Section | Purpose |
+|---|---|---|---|
+| 17 | Auth flow (manual + Playwright `storageState`) | §11 Step 0 | Modal vs redirect vs API token; declare once, reuse |
+| 18 | Locator Reference (Playwright-grade per element) | §11 Step 0 | Role + accessible name + `exact: true`; `data-testid` fallback rule |
+| 19 | Wait Conditions (deterministic; no `waitForTimeout`) | §11 each step | URL pattern, element state, response status |
+| 20 | Inline screenshot slots (Expected + Actual) per visually-relevant step | §11 each step | Pasted inline; NEVER ticket attachment |
+| 21 | TC-level Visual Reference (3 dev-env screenshots: pre / success / failure) | §11 TC header | Sets QA expectation before execution |
+| 22 | Console / Network / Accessibility policy | §11 each TC | axe-core scan; zero `console.error`; zero `requestfailed` |
+
+### Required for API Test Cases
+
+| # | Field | Section | Purpose |
+|---|---|---|---|
+| 23 | Newman canonical reference (collection / folder / request) | §11 each step | Markdown HTTP block matches Newman exactly |
+| 24 | Full HTTP shape (method, URL, headers, body) | §11 each step | Required + optional fields with constraints |
+| 25 | Expected response (single literal status, body shape, assertions) | §11 each step | No "or" / "likely" / "non-2xx" |
+| 26 | Verification GET (mandatory for state-changing ops) | §11 Step 0 | Read-after-write proof; never SQL |
+| 27 | Error cases (each error class as its own step) | §11 | 401 / 403 / 404 / 409 / 422 / 429 |
+
+### Conditional (include when applicable, mark `N/A — <why>` otherwise)
+
+| # | Field | Section | When it applies |
+|---|---|---|---|
+| 28 | Auth-Lockout Protection block | §13 | Any TC touches a login endpoint |
+| 29 | Audit Log + Side-Effects mapping (QA-observable surface per side-effect) | §14 | State-changing feature |
+| 30 | Migration Safety + Rollback | §16 | PR touches DB schema |
+
+> **Also conditional but not separately numbered:** §15 Error Message Content (user-visible errors) · §17 API Versioning (modifies existing endpoint) · §19 Dev-Provided Test Affordances (any `[NOT-QA-TESTABLE]` mutation needs a §19 surface) · §12 Non-Functional Triggers (28-row PR-change matrix) · §11 Tags (`@smoke` / `@regression` / `@slow` / `@gmail` / `@live-email` / `@wcag` / etc.).
+
+---
+
+## Appendix B — Ticket Type Quick Reference
+
+Not every ticket needs all 30 fields. Minimum field set per issue type. When a field doesn't apply, write `N/A — <why>` (per rule #15) rather than omitting silently.
+
+| Ticket type | Minimum fields | Notes |
+|---|---|---|
+| **UI Bug Fix** | Always-required (1–16) + UI fields (17–22) + applicable Conditional | Mark API fields N/A. §16 Migration N/A unless schema-touched. |
+| **API Bug Fix** | Always-required (1–16) + API fields (23–27) + applicable Conditional | Mark UI fields N/A. Newman tier-1 mandatory. |
+| **UI Feature** | Always-required + UI fields + §11 Roles Affected (RBAC matrix §9c if multi-role) + applicable Conditional | All 8 canonical roles in §9c if auth-gated. |
+| **API Feature** | Always-required + API fields + §11 Roles Affected + applicable Conditional | §17 API Versioning mandatory. §19 Affordances likely needed. |
+| **Mixed UI + API** | Always-required + UI fields + API fields + applicable Conditional | TC label: `[UI+API]` or `[E2E]`. UI/API surface alignment per §13. |
+| **Refactor** | Always-required (1–16, with reduced AC since behavior unchanged) + applicable Conditional | Behavior shouldn't change → TCs verify nothing broke; §6 Regression Impact is the heaviest section. |
+| **Config Change** | §1 Behavior · §2 PR · §4 QA Env · §6 Regression · §7a Smoke · §7c Compliance · §28 Cache (if cached) | Lightest variant; still requires §23 Pre-QA checklist. |
+| **Migration / Schema** | Always-required + §16 Migration Safety + §17 API Versioning (if exposed) + applicable Conditional | §16 forward + rollback both ran in QA env by dev BEFORE handoff. |
+| **Epic** | Always-required (no §11 TCs — TCs live on children) + decomposition rationale + cross-cutting risks | Children carry the actual TCs; Epic carries the architecture promise. |
+
+> **When in doubt, fill the field.** An unnecessary `N/A — <why>` takes 2 seconds; a missing field costs ≥1 QA cycle.
+
+---
+
 ## Why this template exists
 
 Every section here exists because its absence caused a real prod incident or wasted QA cycle. The 35-row test-angles matrix in §9a forces enumeration so coverage doesn't depend on the dev's vigilance. §9e ensures every state change is QA-observable — closing the "QA can't see DB" gap. The unified Step format in §11 means UI and API tickets are interchangeable to read and to automate. §13 auth-lockout protects the entire QA team. §19 affordances close the gap §3.8's QA Capability Boundary opens. The cold-read check in §23 is the final gate: if a stranger can't run it, neither can QA.
