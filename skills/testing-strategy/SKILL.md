@@ -16,7 +16,7 @@ Canonical Testing Strategy template for AllDigitalRewards JIRA tickets. **Mandat
 
 ## How to use it
 
-1. **Read `references/template.md`** — the full v4 template
+1. **Read `references/template.md`** — the full v5 template
 2. Copy it into the JIRA ticket description
 3. Run **Section 0 ticket-size gate FIRST** — apply the per-issue-type budget; if exceeded or any decomposition trigger applies, stop and split before writing anything else
 4. Fill out the template top-to-bottom
