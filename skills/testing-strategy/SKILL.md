@@ -93,6 +93,15 @@ Testing is the first of three layers of defense — paired with staged rollouts 
 
 The complete v4 template lives at `references/template.md`. Always read it before authoring a Testing Strategy section.
 
-## Source of v4 changes
+## Source of v5 changes
 
-v4 integrates the QA team lead's normative spec (`qa-jira-ticket-spec.md` v1.6.3, 2026-04-27) and DS-11756 casebook. Added since v3: 35-row test-angles matrix, 8-canonical-roles RBAC, top-of-ticket Depends On / QA Environment / Test Data blocks, Non-Functional Triggers (28-row PR-change matrix), Auth-Lockout Protection, Dev-Provided Test Affordances contract, Audit Log + Side-Effects (QA-observable surfaces), Error Message Content, Migration Safety + Rollback, API Versioning, Compliance Flags (PII/BIPA/PCI/HIPAA/COPPA/SOX/ADA), Severity auto-escalation, 9-convention style linter, expanded tag inventory (`@known-defect/@gmail/@chat-hours-only/@live-email/@wcag/@batch/@critical`), 3 dev-env reference screenshots per UI TC, Newman two-tier framing, atomic single-bug rule, defect-report ADF structure with Findings panel at index 1, pre-mortem promote-or-justify per row, ticket size budget per issue type.
+v5 integrates QA dev Stan's 2026-04-25 input (`DS-12514-testing-strategy-v2-template.md` + `DS-12514-testing-strategy-feedback.md`) on top of the v4 baseline. **All v4 ADR-specific rules are preserved** — Newman two-tier, QA-observability constraints (no DB/Docker/Redis/queue admin), 8-canonical-roles RBAC, hostname allow/deny lists, `plrt`/`suhrobu+` test-data conventions, Auth-Lockout Protection, Dev-Provided Test Affordances, Severity auto-escalation, Compliance Flags, 9-convention style linter, cold-read rule.
+
+**Added in v5:**
+- **"I Don't Know" Protocol** as 22nd non-negotiable: Blank ≠ Unknown ≠ N/A. Blank blocks; `Unknown — QA to verify <how>` triggers QA investigation; `N/A — <why>` declares considered-and-skipped.
+- **Common Mistakes That Waste QA Cycles** table appended to §23 — distilled from Stan's feedback file (preview URL expired, test account missing data, accessible-name typos, dependency PR not merged, stale cache, Slack-only credentials, missing AC mapping, undescribed auth flow).
+- **Appendix A: Field Reference** (30 fields by category) — quick lookup of every field's purpose, organized into Always Required / UI-only / API-only / Conditional.
+- **Appendix B: Ticket Type Quick Reference** — minimum field set per issue type so devs can tailor without re-reading the whole template.
+- **§9d Failure-Mode Checklist** — formatting tightened to Stan's per-item answer convention (`Yes — TC#.Step#` / `No — <reason>` / `N/A — <why>`).
+
+**v4 → v5 carry-forward (v4 already integrated from earlier QA spec):** 35-row test-angles matrix, 8-canonical-roles RBAC, top-of-ticket Depends On / QA Environment / Test Data blocks, Non-Functional Triggers (28-row PR-change matrix), Auth-Lockout Protection, Dev-Provided Test Affordances contract, Audit Log + Side-Effects (QA-observable surfaces), Error Message Content, Migration Safety + Rollback, API Versioning, Compliance Flags (PII/BIPA/PCI/HIPAA/COPPA/SOX/ADA), Severity auto-escalation, 9-convention style linter, expanded tag inventory, 3 dev-env reference screenshots per UI TC, Newman two-tier framing, atomic single-bug rule, defect-report ADF structure, pre-mortem promote-or-justify per row, ticket size budget per issue type.
