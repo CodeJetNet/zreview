@@ -79,6 +79,9 @@ Canonical Testing Strategy template for AllDigitalRewards JIRA tickets. **Mandat
 - **§23:** Pre-QA Handoff Checklist (every box must be checked)
 - **§24:** After QA Starts (don't push during QA, defect feedback loop)
 - **Defect-report shape** (Bug-type / FAILED reports — Findings/Observations panel at content array index 1, Manual Repro mandatory, atomic single-bug rule)
+- **Appendix A:** Field Reference — all 30 fields organized by category (Always Required · UI-only · API-only · Conditional)
+- **Appendix B:** Ticket Type Quick Reference — minimum field set per issue type (UI Bug · API Bug · UI Feature · API Feature · Mixed · Refactor · Config Change)
+- **Common Mistakes That Waste QA Cycles** (appended to §23) — known QA-cycle-burning errors mapped to prevention
 
 ## Why this exists
 
