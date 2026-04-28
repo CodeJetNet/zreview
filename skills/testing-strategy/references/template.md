@@ -32,6 +32,32 @@
 12. **Every pre-mortem row resolves** to either `→ TC<N>.Step<M>` (promote) OR `_Accepted residual risk: <reason>_` (justify). Unresolved rows block the ticket.
 13. **Every status code is one literal value.** No "or", "likely", "non-2xx", "depending on framework". If genuinely unknown, mark `[BLOCKED-DEV-CONFIRM]` and treat as a hard handoff blocker.
 14. **No bad-credential probes** at any login endpoint. Triggers 15-min team-wide lockout. Empty-body and null-value probes are OK.
+15. **"I Don't Know" Protocol — never leave a field blank.** Three states only. Pick one and write it; silence is a defect.
+
+---
+
+## Field-Completion Semantics ("I Don't Know" Protocol)
+
+Three states only. Anything else (silence, "TBD", "tbd", "?", "—") = blank = blocks the ticket.
+
+| State | Write exactly | When to use | What QA does |
+|---|---|---|---|
+| **Value** | the actual value | You know it | QA uses it as-is |
+| **Unknown** | `Unknown — QA to verify <how>` | You investigated and couldn't determine; QA has the surface to find out | QA probes (DOM/API/etc.) and fills the value, then comments back |
+| **N/A** | `N/A — <why>` | The field was considered and doesn't apply to this ticket | QA skips the field |
+| **Blank / TBD / "?"** | _(forbidden)_ | — | QA blocks the ticket back to dev: "what is this?" — costs ≥1 cycle |
+
+**Examples (good vs bad):**
+
+| Field | ❌ Bad | ✅ Good |
+|---|---|---|
+| Element type for "Submit" | _(blank)_ | `Unknown — accessible name is "Submit"; QA to verify whether <button> or <a> via DOM` |
+| Cache considerations | _(blank)_ | `N/A — client-side change only, no caching layer involved` |
+| Rate limit | _(blank)_ | `Unknown — QA to verify by sending sequential requests until 429, then capture Retry-After` |
+| Test account password | `password: hunter2` | `password: env CM_PARTICIPANT_PASSWORD` (per §22 Style Linter rule 8) |
+| Some button | _(blank)_ | `<button>`, accessible name = `"Get Started"` (exact, case-sensitive) |
+
+**Why this is a non-negotiable:** blank fields force QA to play dev-detective — they file a "what does this mean?" comment, dev replies hours later, the ticket bounces back to In Progress, and the whole sprint loses a day. Stating *Unknown* or *N/A* explicitly is what lets QA act now.
 
 ---
 
