@@ -49,6 +49,7 @@ Canonical Testing Strategy template for AllDigitalRewards JIRA tickets. **Mandat
 19. **Atomic single-bug rule:** one bug = one ticket. Different root cause / different code path / different symptom = different ticket. Never bundle.
 20. **Style linter — 9 conventions (§22):** field naming · severity vocab (BLOCKER/HIGH/MEDIUM/LOW/INFO only) · "Done" definition · step granularity (1 action + 1 assertion) · locator strategy · test-data naming · full-URL format · env-var credential references · status-code precision (no "or"/"likely"/"non-2xx").
 21. **Cold-read rule (final gate):** a stranger reading the ticket with zero prior context must be able to manually execute every TC top-to-bottom without asking a question. If they would need to ask, the TC is incomplete.
+22. **"I Don't Know" Protocol — never leave a field blank.** Three states only: write the value · `Unknown — QA to verify <how>` (investigated but not determined; QA probes and fills in) · `N/A — <why>` (considered, doesn't apply). **Blank = forgotten = blocks the ticket.** QA treats Blank as "ask the dev again," Unknown as "investigate and fill," N/A as "skip." Author-facing: never silently omit a field — declare its state explicitly so QA can act on it.
 
 ## Section map (what's in the v4 template)
 
