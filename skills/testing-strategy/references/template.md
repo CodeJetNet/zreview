@@ -1015,6 +1015,24 @@ Every box checked before transitioning to "Ready for QA". 22-item gate.
 
 **Once all boxes checked:** Backlog → Analysis → Selected for Development → Development in Progress → Ready for QA. Walk every transition; do not skip.
 
+### Common Mistakes That Waste QA Cycles (audit yourself before flipping the ticket)
+
+| Mistake | What Happens | Prevention |
+|---|---|---|
+| Sending ticket before code is deployed | All tests fail with "old behavior" — looks like a bug, but the fix isn't there | Run the §4 deploy verification check yourself; record the timestamp + commit SHA before flipping |
+| Preview URL only, no stable QA URL | Preview expires when PR closes — tests can't even start post-merge | Use stable QA URL as primary; preview is an OVERRIDE, never the only entry point |
+| Test account missing required data | "Element not found" failures that aren't bugs | Log in as the test account from a clean browser and verify §5 data prerequisites exist |
+| Locator typo (case/whitespace) | `getByRole('button', {name: 'Get Started'})` fails because actual is "Get started" | Copy text from live DOM, NEVER from memory; assert with `exact: true` |
+| Dependency PR not merged + deployed | Fix relies on another PR's behavior that isn't live | List in §3 with verification check; QA pre-runs the check before Phase 2 |
+| Stale browser cache serving old bundle | Fix is deployed but browser serves cached JS | Document in §7 cache considerations: "hard refresh / incognito / cache-bypass header" |
+| Credentials "shared via Slack" | QA agent has no Slack — can't even start | Reference the env-var name (per §22 rule 8); literal values in tickets are a §21 BLOCKER (plaintext credentials) |
+| Missing AC → TC mapping | QA tests 3 of 5 ACs and signs off; the other 2 ship broken | Fill §10 forward + reverse mapping; "Unmapped ACs: None" is the bar |
+| Auth flow not described | QA writes wrong login automation (modal vs redirect vs API) | §11 Step 0 declares auth flow + Playwright `storageState` strategy explicitly |
+| Bad-credential probes against login | Triggers 15-min team-wide lockout; entire QA queue stalls | Per §13: empty-body and null-value probes ONLY; never literal-wrong-password |
+| Blank field instead of "Unknown" or "N/A" | QA can't distinguish "forgot" from "doesn't apply" — files a comment, ticket bounces | "I Don't Know" Protocol (rule #15): write the value, `Unknown — QA to verify <how>`, or `N/A — <why>`. Never blank. |
+| `nth-child` / class / XPath locator | Test breaks on every UI tweak; flakiness mistaken for regression | §22 rule 5: role/label/text/testid only. If element lacks accessible name, dev adds `data-testid` in THIS PR. |
+| "Status: 200 or 201" | Test asserts loosely, masks an actual contract change | §22 rule 9: one literal status code per assertion; if genuinely unknown, mark `[BLOCKED-DEV-CONFIRM]` |
+
 ---
 
 ## 24. After QA Starts
