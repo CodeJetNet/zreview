@@ -1,9 +1,9 @@
 ---
 name: testing-strategy
-description: Use when authoring or updating the Testing Strategy section of a JIRA ticket for AllDigitalRewards work. Provides the v4 template (35-row test-angles matrix, 8-role RBAC matrix, Step 0 + Action + Expected Result + Wait Condition + Actual Result format, Newman two-tier API rules, QA-observability constraints — browser DOM/console/network + public HTTP only, no DB/Docker/Redis/queue admin, Auth-Lockout Protection, Dev-Provided Test Affordances contract, 9-convention style linter, Severity auto-escalation, and the 22-item Pre-QA Handoff Checklist). Required reading before transitioning a ticket to "Ready for QA" or creating a PR via adr-developer. Triggers on phrases like "testing strategy", "write test cases", "add TCs to ticket", "pre-QA handoff", "ready for QA", "QA strategy", "Playwright test cases", "Newman collection".
+description: Use when authoring or updating the Testing Strategy section of a JIRA ticket for AllDigitalRewards work. Provides the v5 template (35-row test-angles matrix, 8-role RBAC matrix, Step 0 + Action + Expected Result + Wait Condition + Actual Result format, Newman two-tier API rules, QA-observability constraints — browser DOM/console/network + public HTTP only, no DB/Docker/Redis/queue admin, Auth-Lockout Protection, Dev-Provided Test Affordances contract, 9-convention style linter, Severity auto-escalation, the 22-item Pre-QA Handoff Checklist, "I Don't Know" Protocol — Blank vs Unknown vs N/A semantics, Field Reference appendix — 30 fields by category, Ticket Type Quick Reference appendix, Common Mistakes That Waste QA Cycles table). Required reading before transitioning a ticket to "Ready for QA" or creating a PR via adr-developer. Triggers on phrases like "testing strategy", "write test cases", "add TCs to ticket", "pre-QA handoff", "ready for QA", "QA strategy", "Playwright test cases", "Newman collection".
 ---
 
-# Testing Strategy (v4)
+# Testing Strategy (v5)
 
 Canonical Testing Strategy template for AllDigitalRewards JIRA tickets. **Mandatory in every ticket — no exceptions for "small," "config-only," or "obvious" changes.** If code changes, the ticket has a Testing Strategy.
 
