@@ -1,6 +1,6 @@
-# QA Environment Inventory (verified 2026-04-28 by Stan)
+# QA Environment Inventory (verified 2026-04-29 by Stan)
 
-> **Source:** Stan (QA team lead) v6 feedback file `2026-04-28-feedback-for-joe-FINAL.md`. All URLs verified live via HEAD probe + active spec usage in `alldigitalrewards/rewardstack-qa-playwright`. All env-var names verified against the QA repo's `.env.example`. All CI tag names verified against the QA repo's `package.json`.
+> **Source:** Stan (QA team lead) v7 universal standard file `2026-04-29-qa-ticket-writing-standard-FINAL.md` (supersedes v6 `2026-04-28-feedback-for-joe-FINAL.md`). All URLs verified live via HEAD probe + active spec usage in `alldigitalrewards/rewardstack-qa-playwright`. All env-var names verified against the QA repo's `.env.example`. All CI tag names verified against the QA repo's `package.json`.
 >
 > **Read this file before authoring any URL, env-var, role, or tag in a Testing Strategy.** Inventing plausible-looking names ("BATCH_ADMIN_TOKEN", "qa-batch.alldigitalrewards.com") is the single most common defect in dev-authored tickets and the one Stan calls out the most.
 
