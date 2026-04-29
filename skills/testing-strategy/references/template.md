@@ -1093,6 +1093,37 @@ Every box checked before transitioning to "Ready for QA". The checklist is a **r
 - [ ] Pre-mortem (§20) ran; minimum row count met; every row resolved (promoted to TC OR accepted residual risk)
 - [ ] Architecture promises (cross-program, globally, permanent, all programs) mapped to TCs (Epic-level)
 
+**Phase 4 Merge Gate + Post-Merge Behavior (Asks #24, #27, #28, #32):**
+- [ ] §1a "What changes after merge" block populated with Pre-merge → Post-merge assertion target (Ask #24); OR explicit "Internal-only refactor — no observable behavior change" justification
+- [ ] §1a API schema diff included if PR changes request/response shape (added/removed/changed-type fields), OR explicit "No schema changes" (Ask #28)
+- [ ] §1a Webhook payload schema included if PR changes webhook emission, OR explicit "No webhook payload changes" (Ask #32)
+- [ ] §4a Phase 4 Merge Gate banner populated with PR state + merge timestamp + deploy timestamp + commit SHA (or `[BLOCKED]` markers indicating Phase 4 is not yet runnable) (Ask #16)
+- [ ] DB migration verification line filled in §4a Phase 4 Merge Gate (migration name + verification method, OR explicit "No DB migration in this PR") (Ask #27)
+- [ ] PR state confirmed via live `gh pr view <N> --json state,isDraft,mergedAt,updatedAt` — not from memory or prior conversation
+
+**Per-TC config completeness (Asks #25, #26, #29, #30, #31):**
+- [ ] §7a Feature flag table populated for every flag the code path checks + required state per TC + scope + how-to-set, OR explicit "No feature flags gate this code path" (Ask #25)
+- [ ] §5a Test data seed mechanism declared per entity (numbered UI/API steps, fixture env-var, JSON shape for QA-seed, or "dev seeded via deploy hook at <timestamp>") — generic "Test Data Required" alone is not enough (Ask #26)
+- [ ] §5b Real-world side effects + cleanup plan declared per TC that produces side effects (emails, orders, charges, shared state mutation), OR explicit "Side effects: none beyond plrt-tagged DB rows" (Ask #29)
+- [ ] §1b Severity (BLOCKER/HIGH/MEDIUM/LOW/INFO) + Priority (P1/P2/P3) + business-impact one-liner all declared (Ask #30)
+- [ ] §11 TC header Browser matrix declared for every UI TC (default `chromium 1920×1080`; mobile-specific code adds `webkit-iOS 375×667` + `chromium-Android 412×915`; cross-browser concerns add `firefox` + `webkit`) (Ask #31)
+
+**TS-in-comments discoverability (rule #17):**
+- [ ] If TS lives in JIRA comments (because description would exceed Atlassian Cloudflare WAF threshold ~10K chars), the description includes a single-line pointer: `## Testing Strategy — see comments <ID>, <ID>, ... for the full TS v6.`
+- [ ] Corrections to URLs / env-vars / test data live in the description body (not appended as another comment); if the description would breach WAF after the correction, the ticket was split per §0
+
+**Auth + URL hygiene (rules from QA Reality + §22 rules 6/7/8):**
+- [ ] Every URL verified to point to a QA environment (not prod) before posting — checked against `references/qa-environment-inventory.md`
+- [ ] No hostname matches the denylist (`*.alldigitalrewards.com`, `*.adrewards.com`, `*.rewardstack.com`, `*.rewardstack.net`)
+- [ ] Every TC Step 0 cites the role name from the 8 canonical roles ("Authenticate as Super Admin" etc.) — never `${SUPER_ADMIN_TOKEN}`, never `BATCH_ADMIN_TOKEN`, never any invented env-var name
+- [ ] All test emails start with `suhrobu+` and end with `@alldigitalrewards.com`
+- [ ] All generated identifiers (participant IDs, program IDs, session IDs, claim codes) contain `plrt`
+- [ ] Any new env-var dev needs but QA's `.env.example` doesn't have is named explicitly under `New env-vars required by this ticket` per the Protocol in `references/qa-environment-inventory.md` — never silently invented
+
+**Step-completeness (Rule #13):**
+- [ ] Every TC step has ONE literal expected result (no "or", "likely", "non-2xx", "depending on framework")
+- [ ] Step count = expected-result count per TC (the completeness rule)
+
 **Once all boxes checked:** Backlog → Analysis → Selected for Development → Development in Progress → Ready for QA. Walk every transition; do not skip.
 
 ### Common Mistakes That Waste QA Cycles (audit yourself before flipping the ticket)
