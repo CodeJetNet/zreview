@@ -14,7 +14,7 @@ review the latest info report
 which info logs can we drop
 ```
 
-Claude routes to this skill via description match — there is **no slash command**. The skill reads the newest file in `~/scripts/prod-service-info/info-reports/`, applies the verdict criteria, and rewrites the file in place with a `Verdict` column and a `**Verdicts:**` summary line.
+Claude routes to this skill via description match — there is **no slash command**. The skill reads the newest file in `~/scripts/prod-stackdriver-info/info-reports/`, applies the verdict criteria, and rewrites the file in place with a `Verdict` column and a `**Verdicts:**` summary line.
 
 ## Test without mutating the real report
 
