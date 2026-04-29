@@ -166,14 +166,28 @@ If none: state `No prerequisite tickets — self-contained fix.`
 
 ## 4. QA Environment
 
+### 4a. Phase 4 Merge Gate (mandatory — Ask #16)
+
+| PR | State | Merged | Deployed to QA env | DB migration verified (if applicable — Ask #27) |
+|---|---|---|---|---|
+| _<PR link — org/repo#NNN>_ | _OPEN \| MERGED_ | _NO \| YES (timestamp + commit SHA)_ | _NO \| YES (timestamp + commit SHA verified via HEAD probe of the service's liveness endpoint — e.g., `curl -I https://admin.adrqa.info` → 200)_ | _N/A — no DB migration in this PR \| Migration `<name>` verified via `<GET /api/.../migration-status` OR deploy log timestamp \| `[BLOCKED-DEV-CONFIRM]`_ |
+
+**QA Phase 4 (post-merge verification) is BLOCKED until PR is MERGED + DEPLOYED to QA env** (and migration verified if applicable).
+
+QA may pre-author Playwright/Newman tests in Phase 2 and dry-run them against pre-merge state in Phase 3 (assertion FAILS against pre-merge code). The official "PASSED" report (Phase 4) cannot be posted until the deployment timestamp + merge commit SHA are recorded in this banner. False-PASS posted against pre-merge state is the most expensive QA defect — it claims the fix is live when it isn't.
+
+> **Don't trust memory or prior conversation about PR state.** Run `gh pr view <N> -R alldigitalrewards/<repo> --json state,isDraft,mergedAt,updatedAt` before filling in the row.
+
+### 4b. Environment details
+
 | Property | Value |
 |---|---|
-| Service URL (UI) | _<full QA env URL — use `qa.adminUrls.*` from `@config` in code; literal here>_ |
+| Service URL (UI) | _<full QA env URL from `references/qa-environment-inventory.md` — verified to be `*.adrqa.info` or other QA-only host before posting>_ |
 | Service URL (API) | _<full QA env URL>_ |
-| Health check | _`curl -fsS <url>/health` → 200 with `{"status":"ok"}`_ |
+| Health check | _<liveness probe — e.g., `curl -I https://admin.adrqa.info` → 200; some services expose `/health`, admin/cards do NOT (root is the canonical liveness probe)>_ |
 | Deploy status | _Last deployed: <YYYY-MM-DD HH:MM UTC> from `<branch>@<sha>`; GHA workflow `<name>`_ |
-| Brand-new domain | _YES (QA must run live probe before writing locators) \| NO_ |
-| Auth model | _<bearer / cookie / mTLS>; creds via env `<VAR_NAME>`_ |
+| Brand-new domain | _YES (QA must run live probe before writing locators; check `references/qa-environment-inventory.md` first) \| NO_ |
+| Auth model | _<bearer / cookie / mTLS>_; auth via QA's `auth.setup.ts` per role — never name env-vars |
 | Data dependencies | _<other services this depends on for state>_ |
 | Applicable envs | _Local \| QA only \| QA + Staging \| QA + Staging + Production-readonly_ |
 | Data refresh cadence | _<when QA env data resets — e.g., "nightly 02:00 UTC">_ |
