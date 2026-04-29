@@ -64,7 +64,7 @@ The cost of a single accidental prod hit (data corruption, real-money charges, c
 
 | Service | Constant | Real QA URL |
 |---|---|---|
-| Galileo fulfillment | `fulfillmentUrls.galileo` (env `GALILEO_FULFILLMENT_URL`) | `https://galileo-fulfillment.adrqa.info` |
+| Galileo fulfillment ⚠️ **DS-12806 F1 fix** | `fulfillmentUrls.galileo` (env `GALILEO_FULFILLMENT_URL`) | `https://galileo-fulfillment.adrqa.info` (replaces hardcoded prod `https://galileo-fulfillment.alldigitalrewards.com` — 1-char fix: `alldigitalrewards.com` → `adrqa.info`, or use `{{galileo_url}}` env variable) |
 | Amazon Business fulfillment | `fulfillmentUrls.amazonBusiness` | `https://amazon-business-fulfillment.adrqa.info` |
 | Amazon Business maintenance | `fulfillmentUrls.amazonBusinessMaintenance` | `https://amazon-business.adrqa.info` |
 | PayPal fulfillment | `fulfillmentUrls.paypal` | `https://paypal-fulfillment.adrqa.info` |
