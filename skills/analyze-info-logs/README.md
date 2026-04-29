@@ -62,5 +62,5 @@ Source of truth lives at `~/.claude/skills/analyze-info-logs/`. A PostToolUse ho
 
 ## Related
 
-- **Data source:** `~/scripts/prod-service-info/monitor.py` — fetches GCP Cloud Logging entries at `severity<WARNING` for 28 production services and writes the markdown report this skill consumes.
-- **Sibling, not yet built:** `analyze-warning-logs` for `>=WARNING` reports in `~/scripts/prod-service-errors/error-reports/`. Different verdict tags (FIX / DEDUPE / DOWNGRADE / TRIAGE) because the goal differs — warnings are rarely candidates for deletion; the question is whether to fix the underlying bug or rate-limit the emit site.
+- **Data source:** `~/scripts/prod-stackdriver-info/monitor.py` — fetches GCP Cloud Logging entries at `severity<WARNING` for 28 production services and writes the markdown report this skill consumes.
+- **Sibling, not yet built:** `analyze-warning-logs` for `>=WARNING` reports in `~/scripts/prod-stackdriver-errors/error-reports/`. Different verdict tags (FIX / DEDUPE / DOWNGRADE / TRIAGE) because the goal differs — warnings are rarely candidates for deletion; the question is whether to fix the underlying bug or rate-limit the emit site.
