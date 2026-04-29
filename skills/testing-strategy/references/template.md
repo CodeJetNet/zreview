@@ -779,7 +779,7 @@ Map PR change types → required test categories. Every YES row has correspondin
 | Adds calculation / formula | Edge cases (0, negative, max, min, NaN, Infinity, decimal precision) · floating-point safety · locale formatting | _Y/N_ |
 | Adds file upload | File-type validation · size limit · malware scan · PII in filename · error on invalid | _Y/N_ |
 | Adds file download | Content-Disposition · MIME · auth required · file size > 0 · safe filename · no PII leak | _Y/N_ |
-| Adds notification (email/SMS) | Template variables · recipient list · rate limit · `@live-email` tag · subject format | _Y/N_ |
+| Adds notification (email/SMS) | Template variables · recipient list · rate limit · `@sends-real-email` tag (or `@reads-real-email` if test only verifies via Gmail readback) · subject format | _Y/N_ |
 | Adds webhook (sender) | Signature header · retry · idempotency · dead-letter · failed-dispatch logging | _Y/N_ |
 | Adds webhook (receiver) | Signature verification · idempotent intake · double-delivery · invalid-payload rejection | _Y/N_ |
 | Adds DB column | Migration safety · rollback · default-value backfill · NULL behavior visible via API · post-migration GET shape | _Y/N_ |
