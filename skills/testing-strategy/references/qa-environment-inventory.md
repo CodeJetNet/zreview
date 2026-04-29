@@ -99,7 +99,11 @@ For tests that need to verify webhook delivery, use `webhook.site` (free, epheme
 https://webhook.site/<token>
 ```
 
-Tests poll `https://webhook.site/token/<token>/requests` for the captured webhook payload.
+Tests poll `https://webhook.site/token/<token>/requests` for the captured webhook payload — array of captured requests with full payload + headers + timestamp. Assert on `body[0]` (latest) within a wait-loop bounded by 5s.
+
+**Token rotation:** one token per test (or per test group); the receiver-side log persists for ~7 days. Rotate tokens between major test runs.
+
+**Custom-response feature:** the webhook.site dashboard lets you configure the receiver to return any HTTP status — use this for 4xx / 5xx tests. Connection-failure simulation: point the webhook at `https://does-not-exist-<TICKET>.invalid/webhook` for guaranteed-broken delivery.
 
 ### Stale URLs (configured but currently 404 — skip in tickets until QA cleanup PR lands)
 
