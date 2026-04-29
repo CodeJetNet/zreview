@@ -134,7 +134,8 @@ Stan's universal framing. Every ticket SHALL be:
 - **Defect-report shape** (Bug-type / FAILED reports — Findings/Observations panel at content array index 1, Manual Repro mandatory, atomic single-bug rule)
 - **Appendix A:** Field Reference — all 30 fields organized by category (Always Required · UI-only · API-only · Conditional)
 - **Appendix B:** Ticket Type Quick Reference — minimum field set per issue type (UI Bug · API Bug · UI Feature · API Feature · Mixed · Refactor · Config Change)
-- **Common Mistakes That Waste QA Cycles** (appended to §23) — known QA-cycle-burning errors mapped to prevention, including v6-specific items (invented env-var names, unverified URLs, stale CI tags, PR state from memory, pre-checked checklist, missing description pointer, missing architectural-promise TC, missing "What changes after merge" block, comment-instead-of-split for description-body fixes)
+- **§23a:** Ticket-type addenda — UI / WCAG / Performance addendum blocks layered on the universal contract. Each defines the extra fields + a paste-ready TC step template (UI 5-column shape, WCAG 5-column shape + color-contrast-ratio table, Performance baseline / target / measurement method / load profile / SLA / failure-mode-at-limit).
+- **Common Mistakes That Waste QA Cycles** (appended to §23) — known QA-cycle-burning errors mapped to prevention, including items first introduced in v6 (invented env-var names, unverified URLs, stale CI tags, PR state from memory, pre-checked checklist, missing description pointer, missing architectural-promise TC, missing "What changes after merge" block, comment-instead-of-split for description-body fixes)
 
 ## Why this exists
 
