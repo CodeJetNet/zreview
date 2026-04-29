@@ -1,4 +1,4 @@
-# Testing Strategy — JIRA Ticket Section (v6 Template)
+# Testing Strategy — JIRA Ticket Section (v7 Template)
 
 > **MANDATORY IN EVERY JIRA TICKET.** No ticket advances to "Ready for QA" without a complete Testing Strategy. No exceptions for "small," "obvious," or "config-only" changes. If the ticket touches code, it has a Testing Strategy.
 
