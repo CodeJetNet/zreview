@@ -37,7 +37,7 @@
 14. **No bad-credential probes** at any login endpoint. Triggers 15-min team-wide lockout. Empty-body and null-value probes are OK.
 15. **"I Don't Know" Protocol — never leave a field blank.** Three states only. Pick one and write it; silence is a defect.
 16. **The Phase 4 Merge Gate is hard.** Linked PR(s) MUST be (a) NOT in DRAFT and (b) deployed to QA env (timestamp + commit SHA recorded in §4) before status flips to "Ready for QA". QA may pre-author tests in Phase 2 and dry-run them against pre-merge state in Phase 3, but the official "PASSED" report (Phase 4) cannot be posted until merged + deployed. Don't trust memory or prior conversation about PR state — run `gh pr view <N> -R alldigitalrewards/<repo> --json state,isDraft,mergedAt,updatedAt` before asserting it.
-17. **TS-in-comments discoverability.** When the Testing Strategy lives in JIRA comments (because the description would exceed the Atlassian Cloudflare WAF threshold ~10K chars), the description SHALL include a single-line pointer: `## Testing Strategy — see comments <ID>, <ID>, ... for the full TS v6 (size-gated to fit Cloudflare WAF).` Without the pointer, future readers / auditors / QA reviewers miss the TS entirely. Corrections to URLs / env-vars / test data MUST land in the description body — split the ticket if needed; do NOT keep appending comments for content fixes.
+17. **TS-in-comments discoverability.** When the Testing Strategy lives in JIRA comments (because the description would exceed the Atlassian Cloudflare WAF threshold ~10K chars), the description SHALL include a single-line pointer: `## Testing Strategy — see comments <ID>, <ID>, ... for the full TS v7 (size-gated to fit Cloudflare WAF).` Without the pointer, future readers / auditors / QA reviewers miss the TS entirely. Corrections to URLs / env-vars / test data MUST land in the description body — split the ticket if needed; do NOT keep appending comments for content fixes.
 18. **Pre-QA Handoff Checklist boxes stay `[ ]` until the underlying condition is met.** A pre-checked checklist isn't a gate, it's decoration. Items like "PR code-reviewed and approved" / "Deployed to QA env" / "Newman green inside Docker" stay unchecked until the event is confirmed (review approved, deploy timestamp recorded, test output attached). False checks waste QA cycles when the underlying condition isn't actually met.
 
 ---
@@ -1109,7 +1109,7 @@ Every box checked before transitioning to "Ready for QA". The checklist is a **r
 - [ ] §11 TC header Browser matrix declared for every UI TC (default `chromium 1920×1080`; mobile-specific code adds `webkit-iOS 375×667` + `chromium-Android 412×915`; cross-browser concerns add `firefox` + `webkit`) (Ask #31)
 
 **TS-in-comments discoverability (rule #17):**
-- [ ] If TS lives in JIRA comments (because description would exceed Atlassian Cloudflare WAF threshold ~10K chars), the description includes a single-line pointer: `## Testing Strategy — see comments <ID>, <ID>, ... for the full TS v6.`
+- [ ] If TS lives in JIRA comments (because description would exceed Atlassian Cloudflare WAF threshold ~10K chars), the description includes a single-line pointer: `## Testing Strategy — see comments <ID>, <ID>, ... for the full TS v7.`
 - [ ] Corrections to URLs / env-vars / test data live in the description body (not appended as another comment); if the description would breach WAF after the correction, the ticket was split per §0
 
 **Auth + URL hygiene (rules from QA Reality + §22 rules 6/7/8):**
