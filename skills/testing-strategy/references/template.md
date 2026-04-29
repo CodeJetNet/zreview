@@ -1005,14 +1005,14 @@ Severity vocabulary: **BLOCKER · HIGH · MEDIUM · LOW · INFO** only. Never P1
 | # | Convention | Rule | Bad | Good |
 |---|---|---|---|---|
 | 1 | Field naming | snake_case in JSON, camelCase in TypeScript, never mix in same ticket | `id_verification_status` and `idVerificationStatus` for same field | Pick one, use consistently |
-| 2 | Severity language | One of `BLOCKER/HIGH/MEDIUM/LOW/INFO` | Mix of `P1`, `Critical`, `Major`, `S1` | The 5 canonical labels only |
-| 3 | "Done" definition | "Ready for QA" = (PR not draft) AND (deployed to QA env) AND (handoff checklist 100%) | Ticket flipped while PR is DRAFT | Wait for all three |
-| 4 | Step granularity | Each TC step = ONE atomic action + ONE assertion | Step combining 4 actions + 3 assertions | Split into atomic steps |
-| 5 | Locator strategy | data-testid first; text content fallback only for stable copy | `:has-text("Save")` when data-testid exists | `[data-testid="save-program-btn"]` |
-| 6 | Test data naming | Generated values contain `plrt`; emails start with `suhrobu+` | `test@example.com`, `participant_random_123` | `suhrobu+ds12800-<RAND>@alldigitalrewards.com`, `participant_plrt_<RAND>` |
-| 7 | URL format | Always full URL with host; never relative path | "go to /programs/create" | `https://admin.adrqa.info/programs/create` |
-| 8 | Credential reference | Reference env var name; never literal value | `password: hunter2` | `password: env SUPER_ADMIN_PASSWORD` |
-| 9 | Status code precision | One literal code per assertion | "Status: 400 or 422" | "Status: 422" (or `[BLOCKED-DEV-CONFIRM]`) |
+| 2 | Defect severity vocab (§21) | One of `BLOCKER/HIGH/MEDIUM/LOW/INFO` for defect severity. Distinct from QA verification priority (P1/P2/P3 — see §1b). | Mix of `Critical`, `Major`, `S1` for severity | The 5 canonical severity labels + the 3 canonical priority labels (P1/P2/P3), each labeled clearly |
+| 3 | "Done" definition | "Ready for QA" = (PR not draft) AND (deployed to QA env) AND (handoff checklist 100% — boxes only checked when condition is actually met) | Ticket flipped while PR is DRAFT; or checklist all `[x]` pre-emptively without the underlying conditions confirmed | Wait for all three; un-check items whose conditions haven't happened yet |
+| 4 | Step granularity | Each TC step = ONE atomic action + ONE literal expected result (Rule 13 — every step has an assertion) | Step combining 4 actions + 3 assertions; or step with action but no expected result | Split into atomic steps; every step ends with one literal expected result that becomes the test assertion |
+| 5 | Locator strategy | role/label/text first; `data-testid` fallback when no accessible name; never `nth-child` / class / XPath | `:has-text("Save")` when accessible name exists; `.MuiButton-root:nth-child(3)` | `page.getByRole('button', { name: 'Save', exact: true })`, or `page.getByTestId('save-program-btn')` if no accessible name |
+| 6 | Test data naming | Generated values contain `plrt`; emails start with `suhrobu+` and end with `@alldigitalrewards.com` | `test@example.com`, `qa-superadmin@alldigitalrewards.com`, `participant_random_123` | `suhrobu+ds12800-<purpose>-plrt@alldigitalrewards.com`, `participant_plrt_<RAND>` |
+| 7 | URL format | Always full URL with host, verified against `references/qa-environment-inventory.md` (no fixed allowlist — verification IS the rule) | "go to /programs/create"; `https://qa-mpadmin.alldigitalrewards.com/...` (production-pattern, never verified as QA) | `https://admin.adrqa.info/programs/create` (verified via HEAD probe + active spec usage) |
+| 8 | Auth reference | Cite the role name from QA's 8 canonical roles; never invent env-var names; never literal credentials | `${SUPER_ADMIN_TOKEN}`, `${BATCH_ADMIN_TOKEN}`, `ENV_SUPERADMIN_EMAIL`, `password: hunter2` | `Authenticate as Super Admin` (QA's `auth.setup.ts` handles credentials) |
+| 9 | Status code precision | One literal code per assertion | "Status: 400 or 422", "Status: non-2xx", "Status: 200 or 201, depending on framework" | "Status: 422" (or `[BLOCKED-DEV-CONFIRM]`) |
 
 ---
 
