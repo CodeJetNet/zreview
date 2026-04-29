@@ -1063,7 +1063,7 @@ Every box checked before transitioning to "Ready for QA". The checklist is a **r
 - [ ] Locator Reference table populated; every interactive element listed
 - [ ] **Every UI locator uses role/label/text/testid — NEVER `nth-child`, class names, or XPath.** If element lacks accessible name, dev added `data-testid` in this PR.
 - [ ] Step 0 declares external services mocked (with fixture path) OR "none — all calls go live"
-- [ ] Tags declared per TC (`@smoke` / `@regression` / `@slow` / `@flaky-quarantine` / `@known-defect(<ID>)` / `@gmail` / `@chat-hours-only` / `@live-email` / `@wcag` / `@batch` / `@critical`)
+- [ ] Tags declared per TC using CI-canonical names from `package.json` (`@regression` / `@smoke` / `@critical` / `@slow` / `@known-defect(<ID>)` / `@reads-real-email` / `@needs-online-agent` / `@sends-real-email` / `@wcag` / `@batch` / `@e2e` / `@<service>`) — never stale names (`@gmail` / `@chat-hours-only` / `@live-email`)
 - [ ] **Visual Reference 3 dev-env screenshots attached per UI TC** (pre / success / failure) with captions and PII-redaction declaration
 - [ ] Per-TC artifact list declared
 
