@@ -1165,6 +1165,84 @@ Every box checked before transitioning to "Ready for QA". The checklist is a **r
 
 ---
 
+## 23a. Ticket-type addenda (UI / WCAG / Performance)
+
+The 41 non-negotiables apply to every ticket. These addenda layer extra fields on top of the universal contract for specific ticket categories. API-only tickets get the universal contract as-is. UI / WCAG / Performance-sensitive tickets include the corresponding addendum block in the description.
+
+### UI ticket addendum (when ticket changes user-facing screens)
+
+When the ticket changes user-facing UI, the description SHALL also declare:
+
+- **3 captioned screenshots from dev's environment**: pre-state (before action), post-success (working), post-failure (broken state). Captioned with what the user is doing. **Placeholder slots ("Expected screenshot: _Reference of the…_") are NOT acceptable** — actual images SHALL be attached before "Ready for QA."
+- **Locator strategy** for every interactive element QA tests touch. Order of preference: `data-testid` (preferred — stable, dev-controlled), `getByRole` with explicit name (acceptable when role + name are unambiguous), text-based selectors (last resort, fragile). For each locator, dev declares which strategy and why if not `data-testid`.
+- **Real-user perspective** in every step: user clicks button, fills form, navigates page, reads toast, deals with loading spinner, hits error state. Never bypass UI via API for a step the real user takes.
+- **Viewport / device matrix** (Ask #31): default Chrome desktop 1920×1080. Mobile-specific code adds Safari iOS 375×667 + Chrome Android 412×915. Cross-browser concerns (CSS quirks, polyfills) add Firefox + Safari desktop.
+- **Loading / empty / error / success state coverage**: every UI surface that fetches data SHALL have TC steps for each state.
+- **Form validation matrix** (when ticket changes a form): for each field, required vs optional, allowed character set, length boundaries, validation error message text + when it shows.
+- **Keyboard navigation expected behavior** if the change affects focus order, modals, or skip links.
+
+**UI TC step template (paste-ready 5-column shape).** The Expected column becomes the literal `expect()` line; the Locator column is what the test uses (preferred: `getByTestId`; acceptable: `getByRole` with name; last-resort: text); the Screenshot column is what Playwright captures + posts to JIRA as proof:
+
+```
+| # | User action | Expected result | Locator | Screenshot |
+|---|-------------|-----------------|---------|------------|
+| 0 | Authenticate as Super Admin (auth.setup.ts handles credentials); navigate to https://admin.adrqa.info/#/admin/program | Page loads; "Programs" h1 visible | `getByRole('heading', { name: 'Programs' })` | (none — setup) |
+| 1 | Click "Add Program" button | Modal opens with title "New Program"; first field is focused | `getByTestId('add-program-button')` → assert `getByTestId('new-program-modal')` visible AND `getByLabel('Name')` is `:focus` | screenshot-1-modal-open.png |
+| 2 | Fill "Name" with "PLRT Test Program 12074" | Field shows entered text; no validation error visible | `getByLabel('Name')` → `.fill()` then assert `.inputValue() === 'PLRT Test Program 12074'` | (none) |
+| 3 | Click "Save" button | Toast "Program saved" within 2s; modal closes; new row visible with name "PLRT Test Program 12074" | `getByTestId('save-button')` → wait for `getByText('Program saved')` then assert modal hidden + `getByRole('cell', { name: 'PLRT Test Program 12074' })` visible | screenshot-2-saved-toast.png + screenshot-3-row-in-table.png |
+```
+
+### WCAG / Accessibility ticket addendum (when ticket changes accessibility behavior)
+
+When the ticket changes accessibility-relevant behavior (or is explicitly an accessibility fix), the description SHALL also declare:
+
+- **WCAG criteria level** the ticket targets: WCAG 2.1 Level A / Level AA / Level AAA. **Default for ADR is Level AA.**
+- **Specific WCAG criteria changed** (cite the criterion number and title): e.g., `1.4.3 Contrast (Minimum)`, `2.1.1 Keyboard`, `2.4.7 Focus Visible`, `4.1.2 Name, Role, Value`. Don't say "general accessibility improvements" — name the criteria.
+- **axe-core ruleset version** + acceptable violations + reasons. If any axe rule is intentionally violated (rare), justify per-rule with WCAG-cited reasoning.
+- **Keyboard navigation expected behavior**: tab order (which element comes after which), focus-visible styles, focus traps in modals (Esc closes), skip-link visibility on focus.
+- **Screen reader expected announcements** — pick a target SR (NVDA on Windows / VoiceOver on macOS+iOS / JAWS on Windows). Declare expected announcement text per interactive element / state change.
+- **Color contrast ratios** for any changed colors — verified via WebAIM contrast checker (or equivalent). Declare contrast ratio + WCAG threshold met (4.5:1 for normal text AA / 3:1 for large text AA / 7:1 for normal text AAA).
+- **ARIA changes**: any added/removed/changed `role`, `aria-label`, `aria-describedby`, `aria-live`, `aria-expanded`, `aria-hidden`. Declare what changed and why.
+- **Skip-link / landmark changes**: if ticket adds/removes/changes `<main>`, `<nav>`, `<header>`, `<footer>` landmarks or skip links.
+- **CI tag**: TC titles include `@wcag` so CI runs them in the dedicated WCAG suite (`test:wcag:ci`).
+- **Tested with**: state which assistive tech was used to verify (e.g., "Verified with VoiceOver on macOS 14.4 + Safari 17 + axe-core 4.9").
+
+**WCAG TC step template (paste-ready 5-column shape).** The WCAG criterion column links to the spec; the axe-core check column shows which automated rule covers it (the rest is manual SR / keyboard verification):
+
+```
+| # | User action (keyboard / SR) | Expected ARIA / SR announcement / focus state | WCAG criterion | axe-core check |
+|---|----------------------------|-----------------------------------------------|----------------|----------------|
+| 0 | Open https://admin.adrqa.info/#/admin/program with VoiceOver enabled (Cmd+F5) | Page loads; SR announces "Programs, heading level 1" | 1.3.1 Info & Relationships | `axe.run({ tags: ['wcag2aa'] })` — 0 violations |
+| 1 | Press Tab from page load | Focus moves to "Skip to main content" link (visible on focus); SR announces "Skip to main content, link" | 2.4.1 Bypass Blocks + 2.4.7 Focus Visible | (per-element check) |
+| 2 | Press Tab again | Focus moves to "Add Program" button; SR announces "Add Program, button" | 2.1.1 Keyboard + 4.1.2 Name, Role, Value | `getByTestId('add-program-button')` has `role=button` + accessible name |
+| 3 | Press Enter on "Add Program" button | Modal opens; focus moves to first input; SR announces "New Program, dialog. Name, edit text, required" | 2.4.3 Focus Order + 4.1.2 + 3.3.2 Labels | axe rule `aria-required-attr` passes |
+| 4 | Press Esc | Modal closes; focus returns to "Add Program" button; SR announces "Add Program, button" | 2.4.3 Focus Order (focus restoration) | (manual SR check) |
+```
+
+For color-contrast TCs, use the contrast-ratio table form:
+
+```
+| # | Element | Foreground hex | Background hex | Computed ratio | WCAG threshold | Pass? |
+|---|---------|---------------|----------------|----------------|----------------|-------|
+| 1 | Body text in <p> | #4A4A4A | #FFFFFF | 9.74:1 | AA normal text 4.5:1 | ✅ |
+| 2 | Button label "Save" | #FFFFFF | #2563EB | 8.59:1 | AA normal text 4.5:1 | ✅ |
+| 3 | Disabled button label | #9CA3AF | #F3F4F6 | 2.82:1 | AA normal text 4.5:1 | ❌ FAIL — needs darker disabled text |
+```
+
+### Performance ticket addendum (when ticket changes performance characteristics)
+
+When the ticket changes performance characteristics — latency, throughput, concurrency, caching, batching — the description SHALL also declare:
+
+- **Pre-merge baseline**: measured latency (p50 / p95 / p99) AND/OR throughput (requests/sec) AND/OR concurrent capacity. Declare measurement source (production logs, staging benchmark, local benchmark with `wrk` / `k6` / `ab`).
+- **Post-merge target** + acceptable range: e.g., `Target p95 < 250ms; acceptable up to 300ms; over 350ms is a regression.`
+- **Measurement method**: which tool, which env, how many runs to average, what concurrency level, what payload size, warmup strategy. So QA can reproduce the measurement post-merge.
+- **Concurrency / load profile**: single user / N concurrent users / sustained load. Define the test profile precisely (e.g., `10 concurrent webhook deliveries, each with 1s simulated endpoint latency, measured over 5 runs`).
+- **SLA / SLO impact**: does this change affect a customer-facing latency budget? If yes, name the SLA and current vs target.
+- **Resource impact**: CPU / memory / connection-pool / database-connection deltas, if known. Helps QA spot side-effects (e.g., a feature that's faster but uses 4× memory).
+- **Failure-mode at limit**: what happens at saturation? (queue backpressure / throttling / error / silent drop)
+
+---
+
 ## 24. After QA Starts
 
 - **Don't push to the same branch while QA is automating.** If you must, comment on the ticket with the new commit SHA + which TCs need re-running.
