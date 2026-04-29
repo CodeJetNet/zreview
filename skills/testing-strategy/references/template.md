@@ -1108,6 +1108,15 @@ Every box checked before transitioning to "Ready for QA". The checklist is a **r
 - [ ] §1b Severity (BLOCKER/HIGH/MEDIUM/LOW/INFO) + Priority (P1/P2/P3) + business-impact one-liner all declared (Ask #30)
 - [ ] §11 TC header Browser matrix declared for every UI TC (default `chromium 1920×1080`; mobile-specific code adds `webkit-iOS 375×667` + `chromium-Android 412×915`; cross-browser concerns add `firefox` + `webkit`) (Ask #31)
 
+**v7 expansions (Asks #33–#39):**
+- [ ] Logging / observability surfaces declared (new log lines / level / structured-fields / where they land), OR explicit "No log changes" (Ask #33)
+- [ ] External service dependencies declared (vendor + sandbox URL + test-mode credential env-var + webhook signing secret + any portal-side setup), OR explicit "No external service dependencies" (Ask #34)
+- [ ] Escalation channel declared for QA mid-Phase-2 questions (`Questions: ping #<slack-channel>; on-call this week: <name>; SLA <N hours>`) (Ask #35)
+- [ ] Audit log expectations declared when PR touches audit-loggable actions (table/endpoint + expected fields + query method), OR explicit "No audit-loggable actions in this PR" (Ask #36)
+- [ ] Browser console state declared per UI TC (`Console state: clean` / `Tolerated: <warning>` / `Bug error: "<literal string>" pre-merge; absent post-merge`) (Ask #37)
+- [ ] Newman / Postman collection link cited (collection URL or repo path), OR explicit "No Postman collection for this API" (Ask #38)
+- [ ] Out-of-scope line listing related behavior the PR does NOT change (`Out of scope: <related concern> (lives in <ticket / future work>)`) (Ask #39)
+
 **TS-in-comments discoverability (rule #17):**
 - [ ] If TS lives in JIRA comments (because description would exceed Atlassian Cloudflare WAF threshold ~10K chars), the description includes a single-line pointer: `## Testing Strategy — see comments <ID>, <ID>, ... for the full TS v7.`
 - [ ] Corrections to URLs / env-vars / test data live in the description body (not appended as another comment); if the description would breach WAF after the correction, the ticket was split per §0
