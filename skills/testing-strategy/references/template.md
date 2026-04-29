@@ -1252,7 +1252,7 @@ Quick lookup of every field in the template, organized so devs can confirm compl
 | 29 | Audit Log + Side-Effects mapping (QA-observable surface per side-effect) | §14 | State-changing feature |
 | 30 | Migration Safety + Rollback | §16 | PR touches DB schema |
 
-> **Also conditional but not separately numbered:** §15 Error Message Content (user-visible errors) · §17 API Versioning (modifies existing endpoint) · §19 Dev-Provided Test Affordances (any `[NOT-QA-TESTABLE]` mutation needs a §19 surface) · §12 Non-Functional Triggers (28-row PR-change matrix) · §11 Tags (`@smoke` / `@regression` / `@slow` / `@gmail` / `@live-email` / `@wcag` / etc.).
+> **Also conditional but not separately numbered:** §15 Error Message Content (user-visible errors) · §17 API Versioning (modifies existing endpoint) · §19 Dev-Provided Test Affordances (any `[NOT-QA-TESTABLE]` mutation needs a §19 surface) · §12 Non-Functional Triggers (28-row PR-change matrix) · §11 Tags using CI-canonical names from `package.json` (`@regression` / `@smoke` / `@critical` / `@slow` / `@reads-real-email` / `@needs-online-agent` / `@sends-real-email` / `@wcag` / etc.).
 
 ---
 
