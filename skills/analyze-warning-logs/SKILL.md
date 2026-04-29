@@ -84,3 +84,7 @@ Use the Edit tool. Match the existing table block exactly as `old_string`, suppl
 - **Treating real bugs as OPS to defer** → `Deadlock found`, `Duplicate entry` race conditions, unhandled application exceptions are app code, not infra.
 - **Splitting verdicts across same-code-path rows** → multiple rows with identical Service+Message but different Exception payloads = same emit-site; tag consistently.
 - **Padding UNSURE** to avoid commitment → if the criteria above clearly apply, commit to a verdict.
+
+## Follow-up
+
+After verdicts are written, you can invoke `log-minimizer` to update the silence-candidate knowledge base and produce a sister report grouping patterns by state (silence-candidate / pending / silenced / regressed / keep-loud). The minimizer auto-seeds from this report's verdict column.
