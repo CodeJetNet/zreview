@@ -19,7 +19,7 @@ Claude routes to this skill via description match — there is **no slash comman
 ## Test without mutating the real report
 
 ```bash
-cp ~/scripts/prod-service-info/info-reports/$(ls -t ~/scripts/prod-service-info/info-reports/ | head -1) /tmp/test-info-report.md
+cp ~/scripts/prod-stackdriver-info/info-reports/$(ls -t ~/scripts/prod-stackdriver-info/info-reports/ | head -1) /tmp/test-info-report.md
 ```
 
 Then in Claude Code: `analyze the info report at /tmp/test-info-report.md`
