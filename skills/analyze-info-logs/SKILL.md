@@ -78,3 +78,7 @@ Use the Edit tool. Match the existing table block exactly as `old_string`, suppl
 - **Forgetting the idempotency check** → re-running on a file that already has verdicts produces a malformed table.
 - **Treating `failure`/`error` at INFO as REMOVE** → those belong at WARNING; tag KEEP with `MIS-SEVERITY:` reason prefix.
 - **Padding UNSURE** to avoid commitment → if the criteria above clearly apply, commit to a verdict.
+
+## Follow-up
+
+After verdicts are written, you can invoke `log-minimizer` to update the silence-candidate knowledge base and produce a sister report grouping patterns by state (silence-candidate / pending / silenced / regressed / keep-loud / escalate). The minimizer auto-seeds from this report's verdict column and routes `MIS-SEVERITY:` rows to the `escalate` bucket.
