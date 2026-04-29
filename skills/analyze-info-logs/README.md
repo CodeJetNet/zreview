@@ -6,7 +6,7 @@ Claude Code skill that classifies production sub-WARNING log groups (REMOVE / DO
 
 ```bash
 # 1. Get a fresh report (or wait for cron, if installed):
-python3 ~/scripts/prod-service-info/monitor.py
+python3 ~/scripts/prod-stackdriver-info/monitor.py
 
 # 2. In any Claude Code session, type one of:
 analyze info logs

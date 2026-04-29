@@ -1,6 +1,6 @@
 ---
 name: analyze-info-logs
-description: Use when reviewing the latest production sub-WARNING log report at ~/scripts/prod-service-info/info-reports/ to identify log lines that can be removed to cut GCP Cloud Logging cost. Triggers on phrases like "analyze info logs", "which info logs can we drop", "review the info report", "find log lines to remove for cost", or after the prod-service-info monitor cron produces a new file.
+description: Use when reviewing the latest production sub-WARNING log report at ~/scripts/prod-stackdriver-info/info-reports/ to identify log lines that can be removed to cut GCP Cloud Logging cost. Triggers on phrases like "analyze info logs", "which info logs can we drop", "review the info report", "find log lines to remove for cost", or after the prod-stackdriver-info monitor cron produces a new file.
 ---
 
 # Analyze Info Logs
@@ -12,14 +12,14 @@ Production INFO/NOTICE/DEBUG logs cost money on GCP. This skill classifies each 
 ## When to Use
 
 - User says "analyze info logs", "which logs can we cut", or similar.
-- A new file has just landed in `~/scripts/prod-service-info/info-reports/`.
+- A new file has just landed in `~/scripts/prod-stackdriver-info/info-reports/`.
 - User is reviewing GCP logging cost.
 
 **Do NOT use** for `>=WARNING` reports (`error-reports/`) — those have different criteria. Use `analyze-warning-logs` instead.
 
 ## Workflow
 
-1. Find the newest `*.md` in `~/scripts/prod-service-info/info-reports/`. Filenames are UTC timestamps; sort descending. If the directory is empty, abort and tell the user no report exists yet.
+1. Find the newest `*.md` in `~/scripts/prod-stackdriver-info/info-reports/`. Filenames are UTC timestamps; sort descending. If the directory is empty, abort and tell the user no report exists yet.
 2. Read it. **Structural validation:** confirm the file contains a `**Summary:**` line and a markdown table with the expected `Qty | Service | Message | Exception | Date` header. If either is missing, abort — the file is malformed or someone changed the monitor's output format.
 3. **Idempotency check** — if the table header row contains `| Verdict |`, ask the user whether to re-run (will overwrite prior verdicts) or skip. Do not silently overwrite.
 4. Classify each row using the criteria below.
