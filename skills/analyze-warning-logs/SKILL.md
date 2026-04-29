@@ -12,7 +12,7 @@ Production WARNING/ERROR logs need triage, not cost-cutting. This skill classifi
 ## When to Use
 
 - User says "analyze warning logs", "triage the error report", "which prod errors should we file", or similar.
-- A new file has just landed in `~/scripts/prod-service-errors/error-reports/`.
+- A new file has just landed in `~/scripts/prod-stackdriver-errors/error-reports/`.
 - User is reviewing the production alert stream for actionable items.
 
 **Do NOT use** for sub-WARNING reports (`info-reports/`) — those are cost-driven, not triage. Use `analyze-info-logs` instead.
