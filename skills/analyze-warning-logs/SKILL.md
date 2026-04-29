@@ -19,7 +19,7 @@ Production WARNING/ERROR logs need triage, not cost-cutting. This skill classifi
 
 ## Workflow
 
-1. Find the newest `*.md` in `~/scripts/prod-service-errors/error-reports/`. Filenames are UTC timestamps; sort descending. If the directory is empty, abort and tell the user no report exists yet.
+1. Find the newest `*.md` in `~/scripts/prod-stackdriver-errors/error-reports/`. Filenames are UTC timestamps; sort descending. If the directory is empty, abort and tell the user no report exists yet.
 2. Read it. **Structural validation:** confirm the file contains a `**Summary:**` line and a markdown table with the expected `Qty | Service | Error Message | Exception | Date` header. If either is missing, abort — the file is malformed or someone changed the monitor's output format.
 3. **Idempotency check** — if the table header row contains `| Verdict |`, ask the user whether to re-run (will overwrite prior verdicts) or skip. Do not silently overwrite.
 4. Classify each row using the criteria below.
