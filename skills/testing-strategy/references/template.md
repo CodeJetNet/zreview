@@ -1,38 +1,44 @@
-# Testing Strategy — JIRA Ticket Section (v5 Template)
+# Testing Strategy — JIRA Ticket Section (v6 Template)
 
 > **MANDATORY IN EVERY JIRA TICKET.** No ticket advances to "Ready for QA" without a complete Testing Strategy. No exceptions for "small," "obvious," or "config-only" changes. If the ticket touches code, it has a Testing Strategy.
 
 > **The cold-read rule (final gate):** a reader with **zero prior context** — no Slack, no PR, no codebase — must be able to manually execute every TC top-to-bottom from this section alone. If they would need to ask a question, the TC is incomplete. Once manually executable, Playwright (UI + API) automates the same steps in the QA environment.
 
+> **Both sides own zero-defects-in-production together.** If a defect reaches prod, both sides — dev and QA — didn't do our work correctly. This template is the contract that lets both sides hit the bar.
+
 ---
 
 ## QA Reality (constraints baked into this template)
 
-1. **QA's Playwright automation framework can verify ONLY:** browser DOM/URL/console/network and public HTTP API responses. **No DB queries. No container shell. No log access. No queue inspection. No Redis CLI. No Docker. No SSH.** Confirmed org-wide ABSOLUTE 2026-04-26.
+1. **QA's Playwright automation framework can verify ONLY:** browser DOM/URL/console/network and public HTTP API responses, plus Gmail readback for `suhrobu+*@alldigitalrewards.com` and a QA-controlled webhook receiver (webhook.site) and read-only dashboards. **No DB queries. No container shell. No log access. No queue inspection. No Redis CLI. No Docker. No SSH. No kubectl.** Confirmed org-wide ABSOLUTE 2026-04-26.
 2. **Newman is two-tier.** Tier 1 = dev's authoritative `*.postman_collection.json` synced into `docs/api-collections/` — runs as contract/smoke layer. Tier 2 = QA-authored Playwright `request` for cross-program / multi-tab / UI+API integration. Markdown Request/Response in this ticket SHALL match the named Newman request exactly.
 3. **Every TC will be automated in Playwright.** Steps must be locator-precise and assertion-precise.
-4. **Allowlist-only hostnames.** Allow `*.adrqa.info`, `localhost`, `webhook.site`. Deny `*.alldigitalrewards.com`, `*.adrewards.com`, `*.rewardstack.com`, `*.rewardstack.net`. Production is OFF-LIMITS.
-5. **Generated test data SHALL contain the project token (`plrt`); test emails SHALL start with `suhrobu+`.** So QA cleanup queries are safe and real inboxes are never spammed.
+4. **The URL verification rule (absolute).** Before posting any URL in a ticket, dev MUST verify it points to a QA environment — not prod. Same rule applies to env-var values, test-data values, payloads, and webhook targets — every external destination referenced by a TC. There is no fixed allowlist; verification IS the rule. Hostname allowlist (default-safe): `*.adrqa.info`, `localhost`, `webhook.site`. Hostname denylist (production-pattern, never write): `*.alldigitalrewards.com`, `*.adrewards.com`, `*.rewardstack.com`, `*.rewardstack.net`. The denylist is the failsafe — even with verification, a hostname matching the denylist is automatically wrong. **The verified QA URL inventory lives in `references/qa-environment-inventory.md` — read it before authoring any URL.**
+5. **Auth: cite the ROLE — never invent env-var names.** QA's `auth.setup.ts` already wires the 8 canonical roles (Super Admin, Org Admin, Admin View Only, Accounting, Configuration, Customer Service, Participant View, Reporting) to credentials and maintains pre-authenticated `storageState` files per role. Every TC Step 0 says `Authenticate as <role>` — QA handles credentials. Inventing env-var names like `BATCH_ADMIN_TOKEN` / `QA_SUPERADMIN_TOKEN` / `ENV_SUPERADMIN_EMAIL` is forbidden — they don't exist, and even if they did, dev shouldn't have to know them. Full role list + worked examples in `references/qa-environment-inventory.md`.
+6. **Generated test data SHALL contain the project token (`plrt`); test emails SHALL start with `suhrobu+`** and end with `@alldigitalrewards.com`. So QA cleanup queries are safe and real inboxes are never spammed.
 
 ---
 
 ## Absolute Rules (non-negotiable)
 
-1. **Every TC starts at Step 0** — zero-knowledge setup. URL, role, account, credentials env-var name (NEVER literal), auth flow, prerequisites, mocked services, tags. Cross-references allowed; the slot is required per TC.
+1. **Every TC starts at Step 0** — zero-knowledge setup. URL, role (cite the role name; never an env-var), test account email, auth flow, prerequisites, mocked services, tags. Cross-references allowed; the slot is required per TC.
 2. **Every step has these conceptual components: Step 0 (setup) → Action → Expected Result → Wait Condition → blank Actual Result.** API uses domain-appropriate labels: `Request` (= Action) and `Response` (= Expected Result). No step exists without every component filled.
 3. **Linear block format for every execution step — never tables.** Tables don't fit screenshots (UI) or multi-line request/response bodies (API). Each step is a sequence of labeled blocks.
 4. **Every UI step has its OWN inline `Expected screenshot` + `Actual screenshot` slots within that step's block — NEVER uploaded as a generic ticket attachment.** Skip on steps with purely textual assertions (URL pattern, status code, response field, DOM attribute). API steps never have screenshots — the Response body is the evidence.
 5. **Every UI Action names a precise Playwright locator** (`getByRole`/`getByLabel`/`getByTestId` + exact name). No vague "click the button." If element lacks an accessible name, dev MUST add `data-testid` in the SAME PR. Never ship a TC whose locator depends on `nth-child`, class names, or XPath.
 6. **Every API Action names full HTTP shape:** method, URL, headers, body — AND the Newman collection/folder/request name that mirrors it.
 7. **Every Wait Condition names a deterministic signal** (URL pattern, element state, response status). Never `waitForTimeout` / `sleep`.
-8. **Every Expected Result is QA-observable** (DOM, URL, console, network response, public API). Anything verifiable only via DB or container shell goes in the per-TC "Dev-Only Verification" block — NOT a TC.
+8. **Every Expected Result is QA-observable** (DOM, URL, console, network response, public API, Gmail readback, webhook receiver). Anything verifiable only via DB or container shell goes in the per-TC "Dev-Only Verification" block — NOT a TC.
 9. **Every AC maps to at least one TC step. Every TC maps back to ≥1 AC** OR carries written justification (regression baseline, security probe).
 10. **Every changed function in the PR diff** is referenced by a TC step OR a unit test in this PR. Coverage gaps block the ticket.
 11. **Every OUT-OF-SCOPE item argues why it cannot fail in production.** "Different ticket" is not an argument.
 12. **Every pre-mortem row resolves** to either `→ TC<N>.Step<M>` (promote) OR `_Accepted residual risk: <reason>_` (justify). Unresolved rows block the ticket.
-13. **Every status code is one literal value.** No "or", "likely", "non-2xx", "depending on framework". If genuinely unknown, mark `[BLOCKED-DEV-CONFIRM]` and treat as a hard handoff blocker.
+13. **Every TC step has ONE literal expected result — and that expected result IS the test assertion.** Status codes are one example; expected DOM state, response field value, URL match, screenshot baseline are others. No expected result on a step = no assertion in our automated test = a weak test that lets defects through. **Completeness rule:** count steps; count expected results; the two numbers MUST match. If a step's expected result is genuinely unknown, mark `[BLOCKED-DEV-CONFIRM]` — never leave it ambiguous and never move the ticket to "Ready for QA" until every step has a pinned expected result.
 14. **No bad-credential probes** at any login endpoint. Triggers 15-min team-wide lockout. Empty-body and null-value probes are OK.
 15. **"I Don't Know" Protocol — never leave a field blank.** Three states only. Pick one and write it; silence is a defect.
+16. **The Phase 4 Merge Gate is hard.** Linked PR(s) MUST be (a) NOT in DRAFT and (b) deployed to QA env (timestamp + commit SHA recorded in §4) before status flips to "Ready for QA". QA may pre-author tests in Phase 2 and dry-run them against pre-merge state in Phase 3, but the official "PASSED" report (Phase 4) cannot be posted until merged + deployed. Don't trust memory or prior conversation about PR state — run `gh pr view <N> -R alldigitalrewards/<repo> --json state,isDraft,mergedAt,updatedAt` before asserting it.
+17. **TS-in-comments discoverability.** When the Testing Strategy lives in JIRA comments (because the description would exceed the Atlassian Cloudflare WAF threshold ~10K chars), the description SHALL include a single-line pointer: `## Testing Strategy — see comments <ID>, <ID>, ... for the full TS v6 (size-gated to fit Cloudflare WAF).` Without the pointer, future readers / auditors / QA reviewers miss the TS entirely. Corrections to URLs / env-vars / test data MUST land in the description body — split the ticket if needed; do NOT keep appending comments for content fixes.
+18. **Pre-QA Handoff Checklist boxes stay `[ ]` until the underlying condition is met.** A pre-checked checklist isn't a gate, it's decoration. Items like "PR code-reviewed and approved" / "Deployed to QA env" / "Newman green inside Docker" stay unchecked until the event is confirmed (review approved, deploy timestamp recorded, test output attached). False checks waste QA cycles when the underlying condition isn't actually met.
 
 ---
 
