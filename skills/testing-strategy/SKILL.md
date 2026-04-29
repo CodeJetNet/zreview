@@ -145,7 +145,7 @@ Every section in the v7 template exists because its absence caused a real prod i
 
 ## Reference
 
-- The complete v6 template lives at `references/template.md`. Always read it before authoring a Testing Strategy section.
+- The complete v7 template lives at `references/template.md`. Always read it before authoring a Testing Strategy section.
 - The verified QA URL/env-var/role/CI-tag inventory lives at `references/qa-environment-inventory.md`. Always check it before posting any URL, env-var name, role, or tag — inventing plausible-looking names is the #1 most common defect.
 
 ## Source of v7 changes
