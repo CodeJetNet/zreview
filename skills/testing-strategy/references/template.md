@@ -499,13 +499,17 @@ Every TC labeled exactly one of: `[UI]` · `[API]` · `[UI+API]` · `[E2E]`. The
 
 **Label:** _[UI] | [API] | [UI+API] | [E2E]_
 **Goal:** _<one sentence — what this TC proves>_
-**Tags:** _<pick all that apply: `@smoke` (every commit), `@regression` (nightly), `@slow` (>30s), `@flaky-quarantine` (with reason), `@known-defect(DS-NNNNN)`, `@gmail` (uses Gmail readback), `@chat-hours-only` (CSR + business hours), `@live-email` (posts to real human-monitored inbox), `@wcag` (axe scan), `@batch`, `@critical`>_
-**Browser matrix (UI only):** _chromium-only \| chromium+firefox \| chromium+firefox+webkit \| mobile:<profile> \| responsive:<breakpoints>_
+**Tags (CI-canonical — verified against `package.json` 2026-04-27):** _<pick from: `@regression` (default suite — most TCs), `@smoke` (critical-path subset), `@critical` (end-to-end SSO/checkout), `@batch` (longer batch upload), `@wcag` (accessibility — runs only via `npm run test:wcag`), `@reads-real-email` (Gmail readback — CI-excluded), `@needs-online-agent` (live chat with CSR — CI-excluded), `@sends-real-email` (POSTs to real human inbox — CI-excluded; most dangerous), `@slow` (runtime >5min — CI-excluded), `@known-defect(DS-NNNNN)` (CI-excluded), `@e2e`, `@idor`, `@cors`, `@audit-log`, `@info-disclosure`, `@<service>` (e.g., `@catalog`, `@campaign`)>_
+
+> Stale tag names — do NOT use: `@gmail` → `@reads-real-email` · `@chat-hours-only` → `@needs-online-agent` · `@live-email` → `@sends-real-email`. Real grep-invert pattern: see `references/qa-environment-inventory.md`.
+
+**Browser matrix (mandatory for UI TCs — Ask #31):** _Default minimum: `chromium 1920×1080`. When mobile-specific code exists, add: `webkit-iOS 375×667` + `chromium-Android 412×915`. When cross-browser concerns exist (CSS quirks, polyfills): add `firefox 1920×1080` + `webkit 1920×1080`. Without explicit matrix, mobile-only and Firefox-only bugs silently ship._
 **Console baseline (UI only):** errors allowed: 0; warnings allowed: _<N>_
 **Concurrency:** _parallel-safe \| serial-only \| requires-exclusive-resource:<resource>_
 **Time-of-day:** _any \| business-hours:<tz/hours> \| specific-window:<ISO8601>_
-**Feature flag state:** _n/a \| <flag-name>: <ON/OFF/variant>_
+**Feature flag state (per Ask #25):** _<flag_name>: <ON/OFF/variant> + scope (program/org/global)_ \| _No feature flags gate this code path_
 **Mocking posture per dependency:** _<dep1>: REAL/SANDBOX/MOCK_
+**Severity / Priority (per §1b):** _BLOCKER/HIGH/MEDIUM/LOW/INFO + P1/P2/P3_
 **Covers ACs:** _AC1, AC3_
 **Covers angles (per §9a):** _#1, #2, #6, #7, #15_
 **Estimated runtime:** _<seconds>_
