@@ -28,8 +28,8 @@ Stan's universal framing. Every ticket SHALL be:
 
 ## Two reference files — read both before authoring
 
-- **`references/template.md`** — the full v6 template (sections 0-24 + appendices)
-- **`references/qa-environment-inventory.md`** — verified QA URL inventory, real env-var names, 8 canonical roles, canonical CI tag names, real QA artifact paths, process lessons. **Read this before posting any URL, env-var, role, or tag.** Inventing plausible-looking names ("BATCH_ADMIN_TOKEN", "qa-batch.alldigitalrewards.com") is the #1 most common defect Stan flags.
+- **`references/template.md`** — the full v7 template (sections 0-24 + ticket-type addenda + appendices)
+- **`references/qa-environment-inventory.md`** — verified QA URL inventory, real env-var names, 8 canonical roles, canonical CI tag names, real QA artifact paths, pre-existing test participants (`stan12121212` PROTECTED), date/time/locale/currency/idempotency/webhook-retry conventions, process lessons. **Read this before posting any URL, env-var, role, or tag.** Inventing plausible-looking names ("BATCH_ADMIN_TOKEN", "qa-batch.alldigitalrewards.com") is the #1 most common defect Stan flags.
 
 ## How to use it
 
