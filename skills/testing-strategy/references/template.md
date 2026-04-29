@@ -92,6 +92,40 @@ Three states only. Anything else (silence, "TBD", "tbd", "?", "—") = blank = b
 - **After:** _<exact new behavior>_
 - **Primary Signal (Playwright-observable):** _<one assertion: URL pattern, response status, response field, DOM element state>_
 
+### 1a. What Changes After Merge (mandatory — the QA Phase 3 + Phase 4 verification target)
+
+**Why this block exists:** post-merge verification (Phase 4) requires QA to know the precise observable behavior change the PR introduces. Without that, QA can't write a verification check that fails before merge and passes after — which is the whole point of post-merge testing.
+
+**Format:**
+
+> **Observable change:** _<one short paragraph in plain language naming the observable behavior change a QA tester can hit through HTTP / Playwright / Newman / Gmail / webhook receiver to confirm the fix landed>_
+>
+> **Pre-merge:** _<exact assertion target — e.g., `GET https://admin.adrqa.info/api/X` returns 500>_
+>
+> **Post-merge:** _<exact assertion target — e.g., `GET https://admin.adrqa.info/api/X` returns 200 + `body[0].field === 'value'`>_
+>
+> **API schema diff** _(if PR changes API request/response shape — Ask #28)_:
+> - `Added field: <name> (<type>, <enum/format if any>)`
+> - `Removed field: <name>`
+> - `Changed type: <name> (<old> → <new>)`
+> _(or state explicitly: "No schema changes — internal-only" / "No schema changes — UI-only refactor".)_
+>
+> **Webhook payload schema** _(if PR changes webhook emission — Ask #32)_:
+> - `Webhook <event_name> payload schema:` + JSON shape (or link to canonical schema source)
+> _(or state explicitly: "No webhook payload changes.")_
+
+If the PR is internal-only with no observable effect, state so explicitly so QA doesn't waste cycles trying to verify nothing: `Internal-only refactor — no observable behavior change. QA Phase 4 verification: confirm pre-merge regression suite still passes post-deploy.` This block IS the assertion target for both Phase 3 (pre-merge dry-run, expect FAIL) and Phase 4 (post-merge verification, expect PASS).
+
+### 1b. Severity / Priority (mandatory — Ask #30)
+
+| Field | Value |
+|---|---|
+| **Defect severity (when found)** | _BLOCKER \| HIGH \| MEDIUM \| LOW \| INFO_ — per §22 vocab; auto-escalations from §21 applied |
+| **QA verification priority** | _P1 \| P2 \| P3_ — P1 = customer-facing or revenue-blocking (Phase 4 within 24h of merge); P2 = degraded experience (Phase 4 same sprint); P3 = internal/cosmetic (next cycle OK) |
+| **Business impact (one line)** | _<who breaks if this regresses, how visibly>_ |
+
+Severity (BLOCKER…INFO) is how bad a defect is when it happens. Priority (P1/P2/P3) is how soon QA should verify post-merge. They're complementary; both are required.
+
 ---
 
 ## 2. PR Reference & Coverage Map
