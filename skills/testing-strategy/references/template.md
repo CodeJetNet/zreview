@@ -241,12 +241,19 @@ If the TC has no real-world side effects beyond `plrt`-tagged DB rows, state exp
 
 ## 7. Dependencies, Mocking, Compliance
 
-### 7a. Dependencies & Deployment
+### 7a. Dependencies, Deployment & Feature Flags (Ask #25)
 
 - **Blocking dependencies:** _<other ticket/PR that must merge + deploy first | None>_
 - **Deployment verification check (Playwright-runnable smoke):** _<one fast UI/API check confirming the fix is live before running the full TC suite>_
 - **What to do if smoke check fails:** _<wait | comment back to dev | check feature flag>_
-- **Feature flag:** _<flag name + state per env | N/A>_. If 2+ states, each gets its own TC.
+
+**Feature flags required by this ticket** (mandatory — Ask #25):
+
+| Flag | Required state per TC | Scope | How to set |
+|---|---|---|---|
+| _<flag_name>_ | _<true/false per TC; if 2+ states, each gets its own TC>_ | _<program / org / global>_ | _<PATCH /api/.../flag, Admin UI path, env var, `POST /api/_test/feature-flags/{name}` per §19>_ |
+
+If no feature flag gates this code path, state explicitly: `No feature flags gate this code path.` Without this, QA may exercise the OFF branch and the test "passes" on the wrong code (false positive that ships a real defect).
 
 ### 7b. Mocking Policy (per external dependency)
 
