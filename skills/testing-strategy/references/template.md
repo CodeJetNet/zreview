@@ -1018,7 +1018,9 @@ Severity vocabulary: **BLOCKER · HIGH · MEDIUM · LOW · INFO** only. Never P1
 
 ## 23. Pre-QA Handoff Checklist
 
-Every box checked before transitioning to "Ready for QA". 22-item gate.
+Every box checked before transitioning to "Ready for QA". The checklist is a **real gate**, not decoration.
+
+> **Checkbox semantics (rule #18):** items stay `[ ]` until the underlying condition is met. A pre-checked checklist isn't a gate — it's noise. Don't `[x]` "PR code-reviewed and approved" before review actually approves; don't `[x]` "Deployed to QA env" before the deploy timestamp + commit SHA are recorded; don't `[x]` "Newman green inside Docker" without test output attached. False checks waste QA cycles when the underlying condition isn't actually met. Items confirmed at emit-time (e.g., "All Q&A on this ticket, not Slack") may be `[x]`; condition-gated items stay `[ ]` and only flip when the condition is real.
 
 **Code & deploy (dev):**
 - [ ] PR code-reviewed and approved
