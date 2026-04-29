@@ -197,24 +197,34 @@ QA may pre-author Playwright/Newman tests in Phase 2 and dry-run them against pr
 
 ## 5. Test Data Required + Lifecycle
 
-### 5a. Test Data Required
+### 5a. Test Data Required + Seed Mechanism (mandatory — Ask #26)
 
-| Entity | Quantity (production-realistic) | Minimum test scale | Constraint | Source |
+| Entity | Quantity (production-realistic) | Minimum test scale | Constraint | Seed mechanism (HOW dev/QA seeds it) |
 |---|---|---|---|---|
-| _<entity>_ | _<P50 / P95>_ | _<functional + perf-spot-check>_ | _Identifiers contain `plrt`; emails `suhrobu+...`_ | _<TestDataManager method / API call / admin UI / dev seeded via deploy hook>_ |
+| _<entity>_ | _<P50 / P95>_ | _<functional + perf-spot-check>_ | _Identifiers contain `plrt`; emails `suhrobu+...`_ | _One of: (a) "Seed via UI/API: <numbered steps>", (b) "Use existing fixture: <env-var or UUID>", (c) "QA SHALL seed; data shape:" + JSON shape, (d) "Dev seeded via deploy hook — confirmed in QA env at <timestamp>"_ |
 
-> **QA cannot seed via DB.** Dev owns seeding via deploy hook / API / admin UI BEFORE handoff.
+> **Generic "Test Data Required" is not enough.** Dev SHALL state HOW to seed, not just WHAT exists. Without explicit seed mechanism, QA guesses the seed path; if wrong, the test fails for the wrong reason and we waste a cycle.
+>
+> **QA cannot seed via DB.** Dev owns seeding via deploy hook / API / admin UI BEFORE handoff. If seeding requires a value QA's `.env.example` doesn't have (UUID, fixture path), follow the "Protocol when dev needs an env-var QA doesn't have yet" in `references/qa-environment-inventory.md`.
 
-### 5b. Test Data Lifecycle
+### 5b. Test Data Lifecycle + Real-World Side Effects (mandatory — Ask #29)
 
 | Aspect | Specification |
 |---|---|
-| Uniqueness | Every created entity has unique ID (timestamp + random suffix); no parallel collisions |
+| Uniqueness | Every created entity has unique ID (timestamp + random suffix + `plrt` marker); no parallel collisions |
 | Cleanup mechanism | `afterEach` deletes via **API DELETE endpoint** — NEVER SQL DELETE. Dev exposes `DELETE /api/<entity>/{id}` per entity type. Failure logs warning, does not fail test. |
 | Parallel-safety | _parallel-safe \| serial-only (declare why)_ |
 | Shared seed data | _<list any seed that persists across runs, with reason>_ |
 | TTL | _<e.g., "QA env nightly cron deletes plrt-tagged data > 24h">_ |
 | Conflict isolation | _<if two tests modify same entity, declare which wins>_ |
+
+**Real-world side effects + cleanup plan per TC** (Ask #29) — `plrt` markers handle bulk SQL cleanup but don't undo real emails sent / real orders created / real money charged / real shared-state mutation:
+
+| TC | Action | Cost / impact | Cleanup mechanism |
+|---|---|---|---|
+| _<TC#>_ | _<sends email to suhrobu+... \| creates marketplace order \| charges sandbox card \| mutates shared org-level setting>_ | _<"clutters Gmail inbox; auto-archives after 7d" \| "creates real Galileo sandbox order; manual void via admin UI" \| "modifies shared org config; afterEach reverts via PATCH">_ | _<command / cron / manual step / afterEach restoration>_ |
+
+If the TC has no real-world side effects beyond `plrt`-tagged DB rows, state explicitly: `Side effects: none beyond plrt-tagged DB rows; cleanup via standard afterEach API DELETE.`
 
 ---
 
