@@ -1,6 +1,6 @@
 ---
 name: analyze-warning-logs
-description: Use when reviewing the latest production WARNING/ERROR log report at ~/scripts/prod-service-errors/error-reports/ to triage which rows deserve a JIRA ticket vs which are noise to downgrade. Triggers on phrases like "analyze warning logs", "analyze error logs", "triage prod errors", "review the error report", "which prod errors are actionable", or after the prod-service-errors monitor cron produces a new file.
+description: Use when reviewing the latest production WARNING/ERROR log report at ~/scripts/prod-stackdriver-errors/error-reports/ to triage which rows deserve a JIRA ticket vs which are noise to downgrade. Triggers on phrases like "analyze warning logs", "analyze error logs", "triage prod errors", "review the error report", "which prod errors are actionable", or after the prod-stackdriver-errors monitor cron produces a new file.
 ---
 
 # Analyze Warning Logs
