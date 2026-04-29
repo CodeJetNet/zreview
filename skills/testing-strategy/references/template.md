@@ -518,21 +518,24 @@ Every TC labeled exactly one of: `[UI]` · `[API]` · `[UI+API]` · `[E2E]`. The
 
 | Item | Value |
 |---|---|
-| UI base URL (QA env) | _<https://...>_ |
-| API base URL (QA env) | _<https://...>_ |
+| UI base URL (QA env) | _<https://...>_ — verified against `references/qa-environment-inventory.md` before posting |
+| API base URL (QA env) | _<https://...>_ — verified against `references/qa-environment-inventory.md` before posting |
 | Preview override (if pre-merge) | _<URL \| N/A>_ |
-| User role | _<one of: superAdmin · admin · adminViewOnly · accounting · configuration · customerService · participantView · reporting · raApi · raPayment · raOrder · raAdmin · per-service admin>_ |
-| Test account | _<email — `suhrobu+<token>@alldigitalrewards.com`>_ |
-| Credentials | Email: env `<VAR_NAME>` · Password: env `<VAR_NAME>` (in Playwright `.env`). NEVER literal values. |
+| **Auth** | `Authenticate as <Super Admin \| Org Admin \| Admin View Only \| Accounting \| Configuration \| Customer Service \| Participant View \| Reporting \| LX Hausys admin \| AK admin \| Changemaker admin \| RA Payment service account \| RA Order service account \| RA Admin>` (QA's `auth.setup.ts` handles credentials) |
+| **Role** | _<the role name from the Auth row above>_ |
+| Test account | _<email — `suhrobu+<token>-plrt@alldigitalrewards.com`>_ |
 | Auth flow (manual) | _<modal \| redirect \| API token>_ — _<one-line how it works>_ |
-| Auth flow (Playwright) | _<storageState file path if reusable \| full login per test if isolation required>_. Per-role storage state pre-authenticated via `npm run test:auth` (avoids lockout). |
+| Auth flow (Playwright) | _<`STORAGE_PATHS.<roleKey>` reusable storageState \| full login per test if isolation required>_. Per-role storage state pre-authenticated via `npx playwright test --project=auth-setup` (avoids lockout). |
 | Test data preconditions | _<entity IDs OR API GET to discover them>_ — example: `GET /api/v1/workspaces/acme-corp/challenges` returns at least one challenge with `enrolledByCurrentUser: true` |
+| Test data seed mechanism (per §5a) | _<numbered UI/API steps \| existing fixture env-var \| QA seeds with this JSON shape \| dev seeded via deploy hook at <timestamp>>_ |
 | External services mocked in this TC | _<service name + fixture path>_ OR _none — all calls go live_. Mock when service is flaky in QA, has rate limits, or costs money. |
 | If preconditions missing | _<dev seeds via deploy hook / API / admin UI BEFORE handoff — QA does NOT seed via DB>_ |
 | Rate limit | _<N attempts → M min lockout — Playwright must back off, do NOT retry past lockout>_ |
 | Browser context | _<fresh per TC \| shared via storageState — and why>_ |
 | Verification GET (API only — MANDATORY for state-changing operations) | _<method + path + assertion that confirms persistence>_. SHALL be a QA-accessible HTTP endpoint — never SQL. |
 | Cache-bypass mechanism (if endpoint is cached) | _`Cache-Control: no-cache` honored \| `?no_cache=1` \| dedicated bypass endpoint (per §19)_. QA has no Redis CLI. |
+
+> **Critical: NEVER cite env-var names like `SUPER_ADMIN_USERNAME` / `QA_SUPERADMIN_TOKEN` / `BATCH_ADMIN_TOKEN` / `ENV_SUPERADMIN_EMAIL` in the Auth row.** Cite the role name. QA's `auth.setup.ts` reads the right env-vars under the hood and maintains pre-authenticated `storageState` per role. Inventing plausible-looking env-var names is the #1 most common defect Stan flags — fake names route to `undefined`, auth fails silently, and QA debugs "401 Unauthorized" for 30+ minutes before realizing the env-var doesn't exist.
 
 **Locator Reference (UI elements this TC touches — Playwright-grade):**
 
