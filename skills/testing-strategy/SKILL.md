@@ -1,167 +1,151 @@
 ---
 name: testing-strategy
-description: Use when authoring or updating the Testing Strategy section of a JIRA ticket for AllDigitalRewards work. Provides the v7 universal standard (7 Anchor Rules, 40-Ask Contract, 3 Universal Systemic Blockers, UI/WCAG/Performance ticket-type addenda, 35-row test-angles matrix, 8-role RBAC matrix, role-based auth — never invent env-var names, URL verification rule, Phase 4 Merge Gate banner, "What changes after merge" block, Step 0 + Action + Expected Result + Wait Condition + Actual Result format, Newman two-tier API rules, QA-observability constraints — browser DOM/console/network + Gmail readback + webhook receiver only, no DB/Docker/Redis/queue admin, Auth-Lockout Protection, Dev-Provided Test Affordances contract, 9-convention style linter, Severity + Priority — BLOCKER/HIGH/MEDIUM/LOW/INFO + P1/P2/P3, 35-item Pre-Submit Self-Check with checkbox-only-when-real semantics, "I Don't Know" Protocol — Blank vs Unknown vs N/A semantics, feature-flag state per TC, seed mechanism per entity, real-world side-effects + cleanup plan, browser/device matrix per UI TC, API schema diff + webhook payload schema, logging surfaces declaration, external service sandbox config, escalation channel, audit log expectations, browser console state, Newman/Postman collection link, in/out-of-scope, canonical CI tags `@reads-real-email`/`@needs-online-agent`/`@sends-real-email` — never the stale `@gmail`/`@chat-hours-only`/`@live-email`, TS-in-comments discoverability pointer, conventions for date/time/locale/currency/idempotency/webhook-retry, Field Reference appendix, Ticket Type Quick Reference appendix, Common Mistakes That Waste QA Cycles table, verified QA URL/env-var/CI tag inventory + pre-existing test participants `stan12121212` PROTECTED). Required reading before transitioning a ticket to "Ready for QA" or creating a PR via adr-developer. Triggers on phrases like "testing strategy", "write test cases", "add TCs to ticket", "pre-QA handoff", "ready for QA", "QA strategy", "Playwright test cases", "Newman collection".
+description: Use when authoring or updating a Testing Strategy for AllDigitalRewards work. Provides Stan's DS-13017 standard (QA Independence Contract — minimum content so QA can verify a change independently without asking dev follow-up questions). Delivery mechanism is a markdown file at `tests/TESTING_STRATEGY.md` on the branch + uploaded as a JIRA attachment + a minimal pointer block in the ticket description (Before/After + testing type + ready-to-test signal + GitHub link). Required reading before transitioning a ticket to "Ready for QA" or creating a PR via adr-developer. Triggers on phrases like "testing strategy", "write test cases", "add TCs", "pre-QA handoff", "ready for QA", "QA strategy", "Playwright test cases", "Newman collection".
 ---
 
-# Testing Strategy (v7)
+# Testing Strategy (DS-13017 standard)
 
-Canonical Testing Strategy template for AllDigitalRewards JIRA tickets. **Mandatory in every ticket — no exceptions for "small," "config-only," or "obvious" changes.** If code changes, the ticket has a Testing Strategy.
+Canonical Testing Strategy mechanism for AllDigitalRewards JIRA tickets. **Mandatory in every ticket — no exceptions for "small," "config-only," or "obvious" changes.** If code changes, the ticket has a Testing Strategy.
 
-## The 7 Anchor Rules (every ticket SHALL satisfy)
+**Source of truth:** [DS-13017 — Testing Strategy Developer Reference — QA Independence Contract](https://alldigitalrewards.atlassian.net/browse/DS-13017). Owner: Suhrob (Stan) Ulmasov. Stan edits DS-13017's description in place; treat that ticket as the living spec and re-read it if anything in this skill seems out-of-date.
 
-Stan's universal framing. Every ticket SHALL be:
+## Delivery mechanism (this is NEW — read carefully)
 
-1. **SHORT** — Epic + many small child Tasks when work has multiple parts; never fat single tickets. Each child = ONE concern. Single-concern tickets (one PR, one feature) are also fine — bundling is the failure mode, not splitting.
-2. **SELF-CONTAINED** — executable by anyone with zero prior knowledge. Literal URLs (full `https://...`), exact role names from the 8 canonical roles, exact button labels.
-3. **TESTABLE BY QA'S ACTUAL TOOLKIT** — HTTPS, Playwright (UI + axe-core), Newman, Gmail readback, webhook.site receivers. **NOT** database access, **NOT** Docker, **NOT** Redis CLI, **NOT** queue admin.
-4. **CONCRETE on EXPECTED RESULTS** — every step has ONE literal expected result that becomes the Playwright/Newman test assertion. No expected result = no assertion = weak test.
-5. **REAL-USER PERSPECTIVE for UI** — UI tests go through the browser exactly like a real user. Never bypass the UI via API for setup; that hides UI bugs.
-6. **NEVER HITS PROD** — every URL, env-var, test-data value, payload, and webhook target placed in a ticket MUST be verified as pointing to QA, not production.
-7. **SELF-CHECKED BEFORE FLIP** — dev runs the 35-item Pre-Submit Self-Check before moving status to "Ready for QA".
+The TS lives in three places simultaneously, with one source of truth:
+
+1. **Source of truth: `tests/TESTING_STRATEGY.md` on the feature branch.** Versioned with the code, diff-able, atomic commits, no Atlassian WAF cap, reviewable in the PR. Updates land via commits on the branch.
+2. **JIRA attachment.** The same file is uploaded to the ticket via JIRA's REST API so QA can read it without repo access. Re-upload on every TS revision (JIRA preserves attachment history; QA always sees the most recent at the top of the attachments panel).
+3. **JIRA description: minimal pointer block.** Description carries only Before/After + testing type + ready-to-test signal + GitHub link to the file on the branch. The full TS does NOT live in the description. This keeps the description scannable in 30 seconds and avoids the v7-era WAF / append-update mess.
+
+### The description pointer block (paste this verbatim under `## Testing Strategy`)
+
+```markdown
+## Testing Strategy
+
+**Canonical TS:** [`tests/TESTING_STRATEGY.md`](https://github.com/alldigitalrewards/<repo>/blob/<branch>/tests/TESTING_STRATEGY.md) — also attached to this ticket (latest version at the top of the attachments panel)
+
+**Testing type:** API · UI · API+UI-split (under epic DS-XXXXX)
+
+**Before:** _one user-visible sentence — what they see today_
+**After:** _one user-visible sentence — what they see after this change_
+
+**Ready-to-test signal:** all PRs merged (links in Prerequisites) + latest deploy's smoke run green ([link])
+```
+
+### Uploading the attachment to JIRA
+
+Atlassian MCP does not expose an attachment-upload tool; `jira` CLI v1.7.0 does not support `attach`. Use `curl` directly:
+
+```bash
+curl -s -u "<your-atlassian-email>:$JIRA_API_TOKEN" \
+  -X POST -H "X-Atlassian-Token: no-check" \
+  -F "file=@tests/TESTING_STRATEGY.md" \
+  https://alldigitalrewards.atlassian.net/rest/api/3/issue/<TICKET-KEY>/attachments
+```
+
+`JIRA_API_TOKEN` must be set in the environment. Re-upload on every TS revision; do NOT delete prior attachment versions — JIRA preserves them as audit trail.
+
+## The DS-13017 contract — what every TS SHALL include
+
+The dev writes the Testing Strategy in `tests/TESTING_STRATEGY.md` by:
+
+1. **Picking ONE testing type — API OR UI.** Cannot be both. PR spanning both surfaces = two cross-linked tickets under one Epic. WCAG audits fold into UI tickets.
+2. Filling the **Prerequisites tables** (Universal + API or UI — see `references/template.md`).
+3. Writing test cases using the **Step 0 + Request/Action templates**.
+4. Ticking every **Pre-QA Handoff Checklist** box before marking the ticket **Ready for QA**.
+
+**Any drafting tool is fine — the dev owns the final content.** Whoever drafts must follow the Drafting Rules below.
+
+### Drafting Rules (absolute)
+
+1. **Cite source** (PR diff file + line) for every endpoint, payload field, response shape, selector, page label. Never fabricate.
+2. **Never publish a TS containing placeholders or invented values.** Literal strings like `<sandbox-name>`, `<flag-name>`, `<role-tbd>`, `<paste-curl-here>` mean the drafter (human or AI) didn't have the real answer — **find it before marking the ticket Ready for QA**. Sources: the PR diff, the dev who wrote the PR, the PM, the smoke deploy.
+3. **Output format = the Prerequisites tables + Step 0 + Request/Action templates from `references/template.md`, verbatim.**
+
+## Coverage rule
+
+**ONE happy E2E + minimum negatives for THIS change.**
+
+- Minimum negative categories: invalid input · wrong role (authorization) · empty/null. API tickets also: boundary values.
+- API negatives = 4xx response with documented error body. UI negatives = error toast, inline validation message, blocked-submit, or redirect.
+- Only negatives this ticket's PR(s) introduce — pre-existing failure paths belong on a separate ticket.
+- **Typical TS: 2-5 test cases. If more than 5, the change is too big — split into 2 tickets.**
+- For **multi-tenant or org-scoped** endpoints, also include a **cross-tenant negative** (admin of org A → 403/404 on org B's resource), unless the endpoint is explicitly global. Multi-tenant = URL path or JWT carries an organization scope (e.g., `/programs/{program_id}/…`, `/orgs/{org_id}/…`, or the token's `org_id` claim filters results).
+
+## QA reality — facts the drafter must respect
+
+- **QA verifies through:** HTTP API · browser UI · email inbox · Jira · GitHub. **No DB, queues, Docker, Kubernetes / GKE / Cloud Run consoles, internal logs, APM tools (Datadog / Sentry / Grafana), production environment.** QA cannot delete in QA env, so seed data uses unique-per-run naming.
+- The TS lives in `tests/TESTING_STRATEGY.md` (branch + JIRA attachment) — **not** in JIRA description body, **not** in JIRA comments. QA's verdicts and reruns go in Jira comments; never edited into the TS.
+- **No severity or priority classifications inside the TS** — those are Jira ticket fields, not TS content.
+- On every UI ticket, QA verifies the page renders correctly at the **full standard width set (320, 375, 390, 414, 768, 1024, 1280, 1920 px)** — layout, text, content, images. Default coverage; no per-ticket declaration. If layout is intentionally locked to one width, dev flags it in `Risk notes`.
+
+## Auth — name the specific role (never invent env-var names)
+
+DS-13017's canonical role list lives in QA's `config/auth/roles.ts`. The 8 are:
+
+```
+superAdmin · admin · accounting · reporting · configuration · customerService · participantView · programAdmin
+```
+
+Generic terms ("admin-scoped", "any admin") don't count — name the specific role. If a new role is needed, extend QA's matrix first (in a separate ticket / PR).
+
+The Step 0 line is: `Authenticate as <role> (QA supplies account + creds from its secure store)`. Never paste accountIds, usernames, passwords, or tokens in the TS — QA pulls from its secure store keyed by role name.
+
+For tenant-specific roles outside the canonical 8 (LX Hausys admin, RA Payment service account, Changemaker SA), cite the tenant + role plainly. Don't invent env-var names; QA wires these too.
+
+## Test data conventions
+
+- **Synthetic data only.** Examples: `suhrobu+<spec>@alldigitalrewards.com`, `+1 (555) 010-0100`, `"Test User"`. No real customer/cardholder data.
+- **Email recipient must be `suhrobu+<spec>@alldigitalrewards.com`.** Plus-addressing routes to Stan's Workspace inbox so Gmail readback works.
+- **Unique-per-run entity naming.** Pattern: `qa_<spec>_<timestamp>` (e.g., `qa_otp_smoke_20260525_103000`). QA cannot delete in QA env; uniqueness prevents collision across runs.
+- **No real user PII** in payload examples — synthetic test values throughout.
 
 ## When to use this skill
 
-- Authoring a new JIRA ticket's Testing Strategy section
-- Updating an existing ticket's Testing Strategy before a PR
+- Authoring a new JIRA ticket's Testing Strategy file
+- Updating an existing ticket's TS before a PR or after a QA bounce
 - Before transitioning a ticket to "Ready for QA"
-- Before creating a PR via the `adr-developer` skill — PR creation is BLOCKED until Section 23 Pre-QA Handoff Checklist is complete
-
-## Two reference files — read both before authoring
-
-- **`references/template.md`** — the full v7 template (sections 0-24 + ticket-type addenda + appendices)
-- **`references/qa-environment-inventory.md`** — verified QA URL inventory, real env-var names, 8 canonical roles, canonical CI tag names, real QA artifact paths, pre-existing test participants (`stan12121212` PROTECTED), date/time/locale/currency/idempotency/webhook-retry conventions, process lessons. **Read this before posting any URL, env-var, role, or tag.** Inventing plausible-looking names ("BATCH_ADMIN_TOKEN", "qa-batch.alldigitalrewards.com") is the #1 most common defect Stan flags.
+- Before creating a PR via `adr-developer` — PR creation is BLOCKED until the Pre-QA Handoff Checklist in `tests/TESTING_STRATEGY.md` is complete and the file is uploaded to JIRA
 
 ## How to use it
 
-1. **Read both reference files** (template + QA environment inventory)
-2. Copy the template into the JIRA ticket description
-3. Run **Section 0 ticket-size gate FIRST** — apply the per-issue-type budget; if exceeded or any decomposition trigger applies, stop and split before writing anything else
-4. Fill out the template top-to-bottom
-5. **Verify every URL** posted in the ticket points to a QA environment (not prod) — check against `references/qa-environment-inventory.md`. There is no fixed allowlist; verification IS the rule.
-6. **Cite the role name** in every TC Step 0 (`Authenticate as Super Admin`) — never invent env-var names like `SUPER_ADMIN_TOKEN` or `BATCH_ADMIN_TOKEN`. QA's `auth.setup.ts` handles credentials.
-7. **Fill the §1a "What changes after merge" block** — the Pre-merge → Post-merge assertion target is QA's Phase 3 + Phase 4 verification target.
-8. **Fill the §4a Phase 4 Merge Gate banner** — PR state + merge timestamp + deploy timestamp + commit SHA + DB migration verification (or `[BLOCKED]` markers if not yet runnable). Run `gh pr view <N> --json state,isDraft,mergedAt,updatedAt` first; don't trust memory.
-9. Run the **Adversarial Pre-Mortem** (Section 20) with the minimum row count for the issue type (Story/Task ≥10 · Bug ≥5 · Sub-task ≥5 · Epic ≥15); each row resolves to either `→ TC<N>.Step<M>` (promote) or `_Accepted residual risk: <reason>_` (justify)
-10. Run the **Style Linter** (Section 22) — all 9 conventions must pass
-11. Walk the **Pre-QA Handoff Checklist** (Section 23) — every box checked **only when the underlying condition is actually met** (no pre-checking on emit). Items confirmed at emit-time may be `[x]`; condition-gated items stay `[ ]` and only flip when the condition is real.
-12. Apply the **Cold-Read check** as the final gate — could a stranger with zero prior context manually execute every TC top-to-bottom without asking a question? If no, fix the gap.
-13. **If TS lives in JIRA comments** (because the description would exceed Atlassian Cloudflare WAF threshold ~10K chars), add a single-line description pointer: `## Testing Strategy — see comments <ID>, <ID>, ... for the full TS v7.` Without it, future readers / auditors / QA reviewers miss the TS entirely.
-14. Only then transition the ticket to "Ready for QA"
+1. **Read `references/template.md`** — copy it verbatim into a new `tests/TESTING_STRATEGY.md` on the branch.
+2. **Pick ONE testing type** — API or UI. If the PR genuinely spans both, stop and split the ticket before writing.
+3. **Look up factual references** in `references/qa-environment-inventory.md` — QA URLs, the 8 roles list, webhook.site usage, pre-existing test participants (`stan12121212` PROTECTED). Never invent.
+4. **Fill out Prerequisites tables** (Universal + API-or-UI subset) top-to-bottom. No placeholders; if you don't know a value, find it (PR diff / dev / PM / smoke deploy) before continuing.
+5. **Run the recipes you write.** For API tickets: paste a literal `curl` + observed 2xx for each method+path under test, citing the PR HEAD SHA tested (e.g., `verified at HEAD <commit-sha>`). For UI tickets: walk the recipe in a browser and paste a post-login screenshot showing the role badge. Self-attestation without pasted proof is not acceptable.
+6. **Write test cases** — Step 0 (Preconditions) + Step N (Request/Action + Expected + Actual). 2-5 TCs total.
+7. **Tick every box** in the Pre-QA Handoff Checklist (Universal + API-only or UI-only subset). Boxes stay `[ ]` until the underlying condition is met; never pre-check decoratively.
+8. **Cold-read gate:** a stranger reading the TS with zero prior context must be able to manually execute every TC top-to-bottom without asking a question. If they would need to ask, fix the gap.
+9. **Commit the TS file** with the implementation diff on the branch.
+10. **Upload as JIRA attachment** via the `curl` command above. Re-upload on every revision.
+11. **Add the description pointer block** to the JIRA ticket (replaces any prior TS content in the description; never leave stale TS content there).
+12. **Only then transition the ticket to "Ready for QA".**
 
-## Non-negotiables (apply to every ticket)
+## What this skill does NOT carry (compared to the prior v7 standard)
 
-1. **Step 0 zero-knowledge baseline per TC** — UI URL, API URL, role (cite the role name; never an env-var), test account email, auth flow, prerequisites, mocked services, tags, Verification GET (mandatory for state-changing API ops), cache-bypass mechanism (if cached). Cross-references allowed; the slot is required per TC.
-2. **Every step has all four labeled components:** Action · Expected Result · Wait Condition · blank Actual Result. API uses `Request` / `Response`. Linear block format — never tables for execution rows.
-3. **Newman two-tier rule** for any API change. Tier 1 = dev's authoritative `*.postman_collection.json` (contract/smoke). Tier 2 = QA-authored Playwright `request` (cross-program / multi-tab / UI+API). Markdown Request/Response in the ticket SHALL match the Newman request exactly.
-4. **QA verification surface is restricted:** browser DOM/URL/console/network + public HTTP API responses + Gmail readback for `suhrobu+*@alldigitalrewards.com` + QA-controlled webhook receiver (webhook.site) + read-only dashboards ONLY. **No DB queries. No container shell. No log access. No queue inspection. No Redis CLI. No Docker. No SSH. No kubectl.** Confirmed org-wide ABSOLUTE 2026-04-26.
-5. **URL verification rule (absolute).** Before posting any URL in a ticket, dev MUST verify it points to a QA environment — not prod. Same rule applies to env-var values, test-data values, payloads, and webhook targets. There is no fixed allowlist; verification IS the rule. Hostname denylist (production-pattern, never write): `*.alldigitalrewards.com`, `*.adrewards.com`, `*.rewardstack.com`, `*.rewardstack.net`. Hostname allowlist (default-safe): `*.adrqa.info`, `localhost`, `webhook.site`. Verified QA URL inventory in `references/qa-environment-inventory.md`.
-6. **Auth: cite the ROLE — never invent env-var names.** QA's `auth.setup.ts` already wires the 8 canonical roles (Super Admin, Org Admin, Admin View Only, Accounting, Configuration, Customer Service, Participant View, Reporting) to credentials and maintains pre-authenticated `storageState` files per role. Every TC Step 0 says `Authenticate as <role>` — QA handles credentials. Inventing env-var names like `BATCH_ADMIN_TOKEN`, `QA_SUPERADMIN_TOKEN`, `ENV_SUPERADMIN_EMAIL` is forbidden — they don't exist, and even if they did, dev shouldn't have to know them.
-7. **Test data conventions:** generated values SHALL contain `plrt`; emails SHALL start with `suhrobu+` and end with `@alldigitalrewards.com`. Forbidden: `@example.com`, `qa-superadmin@alldigitalrewards.com` (no `suhrobu+` prefix), `participant_random_123` (no `plrt` marker).
-8. **Visually-relevant UI steps include inline Expected + Actual screenshot slots** within the step block — pasted inline, NEVER uploaded as generic ticket attachments. UI TCs additionally require **3 dev-env reference screenshots** (pre-state, post-success, post-failure) at the TC level. Skip per-step screenshot slots on steps with purely textual assertions.
-9. **`data-testid` fallback rule:** if a UI element lacks an accessible name, dev MUST add `data-testid` in the same PR. Never ship a TC whose locator depends on `nth-child`, class names, or XPath.
-10. **35-row test-angles matrix (§9a)** — every angle marked YES has at least one TC mapping; every "Not applicable" has explicit justification. The skill SHALL refuse to ship if any YES has no TC.
-11. **8 canonical roles RBAC matrix (§9c)** when any TC touches an auth-gated endpoint — Super Admin · Admin · Admin View Only · Accounting · Configuration · Customer Service · Participant View · Reporting. Plus cross-org IDOR (workspace-A user reaches workspace-B → 403/404, never 200).
-12. **UI-vs-API surface alignment (§13):** if the AC describes user-facing behavior, the TC is `[UI]` or `[E2E]` — never `[API]`-only shortcut. The only sanctioned `[API]` exception is `POST /token` for setup auth.
-13. **Auth-lockout protection (§13)** is mandatory if any TC touches a login endpoint. No bad-credential probes without justification — they trigger 15-min team-wide lockout.
-14. **Dev-Provided Test Affordances (§19)** are the contract closing the QA Capability gap — if QA needs to verify behavior X and can't with their toolkit, dev SHALL expose a surface (audit-log API, cron manual-trigger, queue-message API, cache-bypass, etc.). No "[NOT-QA-TESTABLE]" without escalation.
-15. **Pre-mortem promote-or-justify (§20):** every row resolves to either `→ TC<N>.Step<M>` or `_Accepted residual risk: <reason>_`. Unresolved rows block the ticket.
-16. **Severity (defect) + Priority (QA verification) — both required (§1b).** Severity vocab: `BLOCKER · HIGH · MEDIUM · LOW · INFO` (per §21 auto-escalation). Priority: `P1 / P2 / P3` (P1 = customer-facing or revenue-blocking — Phase 4 within 24h; P2 = degraded experience — Phase 4 same sprint; P3 = internal/cosmetic — next cycle OK). Severity is "how bad when defect happens"; priority is "how soon QA verifies post-merge."
-17. **Tags per TC (CI-canonical names — verified against `package.json`):** `@regression` (default suite) · `@smoke` (critical-path subset) · `@critical` · `@batch` · `@wcag` (axe scan, separate suite) · `@known-defect(DS-NNNNN)` · `@reads-real-email` (Gmail readback — replaces stale `@gmail`) · `@needs-online-agent` (live chat — replaces stale `@chat-hours-only`) · `@sends-real-email` (POSTs to real human-monitored inbox — replaces stale `@live-email`; most dangerous) · `@slow` (>5min) · `@e2e` · `@idor` · `@<service>` (e.g., `@catalog`, `@dashboard`). Stale tags `@gmail`, `@chat-hours-only`, `@live-email` are forbidden — they don't match CI's grep-invert pattern.
-18. **Accessibility scan default-on** for UI TCs (`@axe-core/playwright`); zero critical/serious violations except an explicitly tracked allowlist.
-19. **Browser / device matrix per UI TC (Ask #31):** default `chromium 1920×1080`. Mobile-specific code adds `webkit-iOS 375×667` + `chromium-Android 412×915`. Cross-browser concerns add `firefox 1920×1080` + `webkit 1920×1080`. Without explicit matrix, mobile-only and Firefox-only bugs silently ship.
-20. **Ticket size budget per issue type (§0):** Story/Task ≤8 TCs · Bug ≤3 · Sub-task ≤5 · Epic = 0 (TCs live on children). Decompose if any trigger applies — touches 2+ repos / 2+ services / 2+ phases / has cross-cutting risks.
-21. **Atomic single-bug rule:** one bug = one ticket. Different root cause / different code path / different symptom = different ticket. Never bundle.
-22. **Style linter — 9 conventions (§22):** field naming · severity vocab (BLOCKER/HIGH/MEDIUM/LOW/INFO + P1/P2/P3 priority — distinct fields) · "Done" definition · step granularity (1 action + 1 literal expected result) · locator strategy · test-data naming (`plrt` + `suhrobu+`) · full-URL format (verified against QA inventory) · auth reference (cite the role name; never invent env-var names; never literal credentials) · status-code precision (no "or"/"likely"/"non-2xx").
-23. **Cold-read rule (final gate):** a stranger reading the ticket with zero prior context must be able to manually execute every TC top-to-bottom without asking a question. If they would need to ask, the TC is incomplete.
-24. **"I Don't Know" Protocol — never leave a field blank.** Three states only: write the value · `Unknown — QA to verify <how>` (investigated but not determined; QA probes and fills in) · `N/A — <why>` (considered, doesn't apply). **Blank = forgotten = blocks the ticket.** QA treats Blank as "ask the dev again," Unknown as "investigate and fill," N/A as "skip." Never silently omit a field — declare its state explicitly so QA can act on it.
-25. **Phase 4 Merge Gate is hard.** Linked PR(s) MUST be (a) NOT in DRAFT and (b) deployed to QA env (timestamp + commit SHA recorded in §4a) before status flips to "Ready for QA". QA may pre-author tests in Phase 2 and dry-run them against pre-merge state in Phase 3 (assertion FAILS against pre-merge code), but the official "PASSED" report (Phase 4) cannot be posted until merged + deployed. Don't trust memory or prior conversation about PR state — run `gh pr view <N> --json state,isDraft,mergedAt,updatedAt` before asserting it.
-26. **Per-step expected result (§13 in template, "the completeness rule").** Every TC step has ONE literal expected result — and that expected result IS the test assertion. Status codes are one example; expected DOM state, response field value, URL match, screenshot baseline are others. No expected result on a step = no assertion = a weak test that lets defects through. Count steps; count expected results; the two numbers MUST match. If genuinely unknown, mark `[BLOCKED-DEV-CONFIRM]` — never leave it ambiguous.
-27. **"What changes after merge" block (§1a — Ask #24).** EVERY ticket SHALL state, in plain language, the exact observable behavior change a QA tester can hit through HTTP / Playwright / Newman / Gmail / webhook receiver to confirm the fix landed. Format: one short paragraph + a Pre-merge → Post-merge assertion target. Internal-only refactors with no observable change SHALL say so explicitly. This block is the assertion target for QA's Phase 3 (pre-merge dry-run, expect FAIL) and Phase 4 (post-merge verification, expect PASS).
-28. **Feature flag state per TC (Ask #25).** EVERY ticket whose code path is gated by a feature flag SHALL list every flag the code checks + the required state per TC + scope (program/org/global) + how to set. If no flag gates the path, state explicitly "No feature flags gate this code path." Without this, QA may exercise the OFF branch and the test "passes" on the wrong code (false positive that ships a real defect).
-29. **Test-data seed mechanism per entity (Ask #26).** Generic "Test Data Required" is not enough. Dev SHALL state HOW to seed: numbered UI/API steps, existing fixture env-var, JSON shape for QA-seed, or "dev seeded via deploy hook at <timestamp>". Without explicit seed mechanism, QA guesses the seed path; if wrong, the test fails for the wrong reason.
-30. **Real-world side effects + cleanup plan per TC (Ask #29).** EVERY TC that produces a real-world side effect (sends email, creates order, charges card, mutates shared state) SHALL declare the side effect + the cleanup mechanism. `plrt` markers handle bulk SQL cleanup but don't undo real emails / orders / charges. Without an explicit cleanup plan, repeated test runs pollute QA env.
-31. **DB migration confirmation in §4a Phase 4 banner (Ask #27).** Tickets whose PR includes a DB migration SHALL state migration name + how to verify it ran (`GET /api/.../migration-status` OR deploy log timestamp). Tickets with NO migration SHALL state explicitly "No DB migration in this PR." Without this, a silently-failed migration produces tests that pass against stale schema.
-32. **API schema diff + webhook payload schema in §1a (Asks #28 + #32).** Tickets whose PR changes API request/response shape SHALL include a schema diff (added / removed / changed-type fields) inside §1a. Tickets whose PR changes webhook payload shape SHALL include the new payload schema. State explicitly "No schema changes" / "No webhook payload changes" if internal-only. QA's automated assertions break silently when schema changes without notice.
-33. **TS-in-comments discoverability (rule from template §17).** When the Testing Strategy lives in JIRA comments because the description would breach Atlassian Cloudflare WAF (~10K chars), the description SHALL include a single-line pointer: `## Testing Strategy — see comments <ID>, <ID>, ... for the full TS v7.` Without it, the TS is invisible to anyone scanning the description. Corrections to URLs / env-vars / test data MUST land in the description body — split the ticket if needed; do NOT keep appending comments for content fixes.
-34. **Pre-QA Handoff Checklist boxes stay `[ ]` until the underlying condition is met.** A pre-checked checklist isn't a gate, it's decoration. Items like "PR code-reviewed and approved" / "Deployed to QA env" / "Newman green inside Docker" stay unchecked until the event is confirmed (review approved, deploy timestamp recorded, test output attached). False checks waste QA cycles when the underlying condition isn't actually met.
-35. **Logging / observability surfaces (Ask #33).** When PR adds new log lines QA could assert on (or changes log format / level / structured fields), dev SHALL declare the log line shape + level + where it lands. Format: `Logs added/changed: <log_level> "<log line shape with variables>" (lands in <Cloud Run / app log / Mongo collection / etc.>)`. State explicitly "No log changes" if PR doesn't touch logging. Without this, QA either misses new signals OR has stale assertions when log format changes.
-36. **External service dependencies + sandbox/test-mode config (Ask #34).** When PR depends on an external service (Veriff, Postmark, Stripe-likes, IDV providers, third-party APIs), dev SHALL declare: external service name + sandbox URL + test-mode credentials env-var name + any QA-side setup (e.g., webhook URL to register in vendor portal, signing secret, sandbox account). Format: `External: <vendor> (sandbox: <URL>; test API key in env <VAR_NAME>; webhook to register in vendor portal: <URL>; signing secret in env <VAR_NAME>)`. State explicitly "No external service dependencies" if PR is internal-only. Without this, QA can't reach the vendor sandbox; tests block on the integration handshake.
-37. **Escalation channel for QA mid-Phase-2 questions (Ask #35).** EVERY ticket SHALL declare where QA pings if a non-obvious blocker comes up mid-Phase-2 (test data confusion, weird API behavior, vendor sandbox issue). Format: `Questions: ping #<slack-channel>; on-call this week: <name>; SLA <N hours>`. Default: name the engineering squad's standing channel + on-call rotation if it exists. Without this, QA pings #general → no response → blocked half a day.
-38. **Audit log expectations (Ask #36).** When PR's behavior is audit-logged (security action, state change, admin override, data export), dev SHALL declare: which actions log + the audit-log entry shape QA verifies (table/collection/endpoint, expected fields, query method). Format: `Audit log: action <X> writes entry to <table/endpoint> with fields {action, actor_id, target_id, timestamp, before, after}; query via <GET /api/admin/audit-log/recent?action=X>`. State explicitly "No audit-loggable actions in this PR" if not applicable. Without this, QA doesn't verify the audit trail and compliance regressions ship silently.
-39. **Browser console state per UI TC (Ask #37).** EVERY UI ticket SHALL declare expected browser-console state per TC: clean (no errors / no warnings), tolerated errors (specific list with reasons), or new error that IS the bug being fixed (with the literal error string). Format: `Console state: clean (no errors expected)` OR `Tolerated: <warning text> (reason: 3rd-party SDK noise)` OR `Bug error: "TypeError: X is undefined" appears pre-merge; absent post-merge`. Without this, QA misses silent JS errors that ship.
-40. **Newman / Postman collection link (Ask #38).** When dev maintains a Postman collection for the API affected by the PR, dev SHALL link the collection (collection URL OR repo path) so QA can run it via `scripts/run-newman.mjs`. Format: `Postman collection: <URL or repo path/file.postman_collection.json>; Newman runner: scripts/run-newman.mjs --collection=<path>`. State explicitly "No Postman collection for this API" if dev doesn't maintain one (QA writes Newman calls inline). Without this, QA duplicates effort writing the collection from scratch.
-41. **In-scope vs out-of-scope for THIS ticket (Ask #39).** EVERY ticket SHALL include an explicit "Out of scope" line listing related behavior the PR does NOT change so QA doesn't write tests for adjacent behavior. Format: `Out of scope: <related concern> (lives in <other ticket / future work>); <related concern>; ...`. Without this, QA writes tests for behavior dev considers "someone else's problem," fails them, and creates noise.
+DS-13017 is a clean break from the v7 standard the skill used to encode. The following v7 elements are intentionally not present — Stan removed them or never required them:
 
-## Ticket-type addenda (apply on top of universal asks when relevant)
+- No section numbering (no §0 / §1a / §4a / §11). Output format is just Prerequisites tables + Step 0 + Step N + checklist.
+- No 35-row test-angles matrix.
+- No mandatory 8-role RBAC matrix per ticket (only a cross-tenant negative for multi-tenant endpoints).
+- No Severity (BLOCKER/HIGH/MEDIUM/LOW/INFO) or Priority (P1/P2/P3) fields inside the TS — those are Jira ticket fields.
+- No CI tag taxonomy (`@smoke` / `@reads-real-email` / `@needs-online-agent` / `@sends-real-email` / etc.) inside the TS.
+- No `plrt` test-data marker (replaced by `qa_<spec>_<timestamp>` for entities + `suhrobu+<spec>@alldigitalrewards.com` for emails).
+- No 40-Ask Contract, 7 Anchor Rules, Adversarial Pre-Mortem, 9-convention Style Linter, or 35-item Pre-Submit Self-Check.
+- No Per-TC browser/device matrix (default coverage across the full standard width set is assumed).
+- No mixed UI+API TSes (split into two cross-linked tickets under one Epic).
+- No TS-in-comments fallback (TS is an attached file; the description carries the pointer).
 
-- **UI tickets** — 3 captioned screenshots from dev's environment (pre-state / post-success / post-failure — never placeholder slots) · locator strategy (`data-testid` preferred, `getByRole`+name acceptable, text-based last-resort) · real-user-perspective steps · viewport/device matrix (default `chromium 1920×1080`; mobile adds `webkit-iOS 375×667` + `chromium-Android 412×915`; cross-browser adds `firefox` + `webkit` desktop) · loading/empty/error/success state coverage per fetching surface · form validation matrix (per field: required, charset, length boundaries, error text + when shown) · keyboard navigation expected behavior. UI TC step rows use the 5-column shape: `# | User action | Expected result | Locator | Screenshot` — the Expected column becomes the literal `expect()` line; the Locator column is what the test uses; the Screenshot column is what Playwright captures + posts to JIRA as proof.
-- **WCAG / Accessibility tickets** — WCAG criteria level (default Level AA) · specific WCAG criterion numbers + titles (e.g., `1.4.3 Contrast (Minimum)`) · axe-core ruleset version + acceptable violations + reasons · keyboard navigation expected behavior (tab order / focus-visible / focus traps / skip-link visibility on focus) · screen reader expected announcements (target a single SR — NVDA / VoiceOver / JAWS) · color contrast ratios (verified via WebAIM contrast checker; declare ratio + WCAG threshold met) · ARIA changes (added/removed/changed `role`, `aria-label`, `aria-describedby`, `aria-live`, `aria-expanded`, `aria-hidden`) · skip-link / landmark changes · `@wcag` CI tag · "Tested with" line stating which assistive tech was used (e.g., "Verified with VoiceOver on macOS 14.4 + Safari 17 + axe-core 4.9"). WCAG TC step rows use the 5-column shape: `# | User action (keyboard / SR) | Expected ARIA / SR announcement / focus state | WCAG criterion | axe-core check`. For color contrast TCs, use the contrast-ratio table form: `# | Element | Foreground hex | Background hex | Computed ratio | WCAG threshold | Pass?`.
-- **Performance tickets** — pre-merge baseline (measured latency p50/p95/p99 AND/OR throughput AND/OR concurrent capacity, with measurement source) · post-merge target + acceptable range · measurement method (tool + env + run count + concurrency + payload size + warmup) · concurrency / load profile (defined precisely) · SLA / SLO impact (name the SLA + current vs target) · resource impact (CPU / memory / connection-pool / DB-connection deltas) · failure-mode at limit (queue backpressure / throttling / error / silent drop).
+If you find yourself reaching for one of these, you're writing v7 — stop and re-read DS-13017.
 
-## Section map (what's in the v7 template)
+## Reference files
 
-- **§0:** Ticket Size Gate (per-issue-type budget; decomposition triggers)
-- **§1:** Behavior Change (Before / After / Primary Signal)
-- **§1a:** What Changes After Merge (the QA Phase 3 + Phase 4 assertion target — Pre-merge → Post-merge + API schema diff + webhook payload schema)
-- **§1b:** Severity (BLOCKER…INFO) + Priority (P1/P2/P3) + business impact
-- **§2:** PR Reference & Coverage Map (changed function → TC step or unit test) + Newman collection
-- **§3:** Depends On (top-of-ticket — auto-derived from PR diff)
-- **§4a:** Phase 4 Merge Gate banner (PR state + merge timestamp + deploy timestamp + commit SHA + DB migration verification)
-- **§4b:** QA Environment (URL, deploy status, brand-new-domain flag, refresh cadence)
-- **§5a:** Test Data Required + Seed Mechanism (numbered UI/API steps · fixture · JSON shape · deploy hook)
-- **§5b:** Test Data Lifecycle + Real-World Side Effects + Cleanup Plan
-- **§6:** Regression Impact (downstream consumers, risk level)
-- **§7a:** Dependencies, Deployment & Feature Flags (per-TC flag state + scope + how-to-set)
-- **§7b:** Mocking Policy (REAL/SANDBOX/MOCK)
-- **§7c:** Compliance Flags (PII/BIPA/PCI/HIPAA/COPPA/SOX/ADA)
-- **§8:** Acceptance Criteria (numbered · atomic · observable · mapped)
-- **§9:** Coverage Matrices — 9a 35-row test-angles · 9b Input Partitions · 9c 8-role RBAC · 9d Failure-Mode Checklist · 9e Externally-Observable State Mapping
-- **§10:** AC ↔ TC two-way mapping (forward + reverse)
-- **§11:** Test Cases — Unified Step Format (Step 0 with role-based auth + numbered Steps; per-TC required artifacts; 3 dev-env reference screenshots for UI; browser matrix; severity/priority; feature flag state)
-- **§12:** Non-Functional Triggers (28-row PR-change matrix)
-- **§13:** Auth-Lockout Protection (lockout-protected endpoints; bad-credential probe rules)
-- **§14:** Audit Log + Observable Side-Effects (with QA-accessible verification surface per side-effect)
-- **§15:** Error Message Content (exact text · i18n key · surface · accessibility attrs)
-- **§16:** Migration Safety + Rollback (Phase 4 verification surface — never SQL)
-- **§17:** API Versioning + Backwards Compatibility
-- **§18:** OUT-OF-SCOPE Justifications ("why this cannot fail in prod")
-- **§19:** Dev-Provided Test Affordances (audit-log API, cron trigger, queue API, cache-bypass, lockout-clear, time-freeze, feature-flag toggle, etc.)
-- **§20:** Adversarial Pre-Mortem (≥10 Story/Task · ≥5 Bug · ≥15 Epic; promote-or-justify per row)
-- **§21:** Severity Escalation Rules (auto-BLOCKER triggers)
-- **§22:** Style Linter (9 conventions — including role-based auth + canonical CI tags)
-- **§23:** Pre-QA Handoff Checklist (every box checked only when condition is real)
-- **§24:** After QA Starts (don't push during QA, defect feedback loop)
-- **Defect-report shape** (Bug-type / FAILED reports — Findings/Observations panel at content array index 1, Manual Repro mandatory, atomic single-bug rule)
-- **Appendix A:** Field Reference — all 30 fields organized by category (Always Required · UI-only · API-only · Conditional)
-- **Appendix B:** Ticket Type Quick Reference — minimum field set per issue type (UI Bug · API Bug · UI Feature · API Feature · Mixed · Refactor · Config Change)
-- **§23a:** Ticket-type addenda — UI / WCAG / Performance addendum blocks layered on the universal contract. Each defines the extra fields + a paste-ready TC step template (UI 5-column shape, WCAG 5-column shape + color-contrast-ratio table, Performance baseline / target / measurement method / load profile / SLA / failure-mode-at-limit).
-- **Common Mistakes That Waste QA Cycles** (appended to §23) — known QA-cycle-burning errors mapped to prevention, including items first introduced in v6 (invented env-var names, unverified URLs, stale CI tags, PR state from memory, pre-checked checklist, missing description pointer, missing architectural-promise TC, missing "What changes after merge" block, comment-instead-of-split for description-body fixes)
+- **`references/template.md`** — the DS-13017 verbatim template. Copy into `tests/TESTING_STRATEGY.md` on the branch and fill out.
+- **`references/qa-environment-inventory.md`** — factual lookup data DS-13017 references but doesn't restate: verified QA URLs (allowlist / denylist), webhook.site usage, pre-existing test participants (`stan12121212` PROTECTED), date/time/locale/currency conventions.
 
 ## Why this exists
 
-Every section in the v7 template exists because its absence caused a real prod incident or wasted QA cycle. The 35-row test-angles matrix forces enumeration so coverage doesn't depend on the dev's vigilance. The 8-role RBAC matrix catches privilege-escalation and IDOR before prod. The 4-component step format ensures Playwright automation is unambiguous. The QA-observability constraint matches QA's actual environment reality (no DB, no container access). Role-based auth (Stan v6) replaces the brittle "dev invents env-var names" pattern that produced 30+ minutes of debug per occurrence. The URL verification rule replaces the "production-pattern hostname accidentally lands in a ticket" failure mode. The Phase 4 Merge Gate banner prevents the false-PASS-against-pre-merge-code class of defect. The "What changes after merge" block gives QA a concrete Pre-merge → Post-merge assertion target. The pre-mortem promote-or-justify rule turns "we know this could happen" into "tested or accepted-risk." The Pre-QA Handoff Checklist with "boxes stay `[ ]` until condition met" semantics turns the checklist from decoration into a real gate.
+DS-13017's goal is **QA independence**: QA verifies the change without asking dev a single follow-up question. Every section of the template exists because its absence forced QA to interrupt a dev (mid-flow, mid-meeting, mid-sleep) to get a missing endpoint / payload / role / flag / seed step / verification curl. The contract is a one-time cost at write-time that buys QA a week of unblocked verification.
 
-**Both sides own zero-defects-in-production together.** If a defect reaches prod, both sides — dev and QA — didn't do our work correctly. This template is the contract that lets both sides hit the bar. Testing is the first of three layers of defense — paired with staged rollouts and the prod log monitors. This template makes the first layer maximally rigorous; the other layers catch what still slips through.
-
-## Reference
-
-- The complete v7 template lives at `references/template.md`. Always read it before authoring a Testing Strategy section.
-- The verified QA URL/env-var/role/CI-tag inventory lives at `references/qa-environment-inventory.md`. Always check it before posting any URL, env-var name, role, or tag — inventing plausible-looking names is the #1 most common defect.
-
-## Source of v7 changes
-
-v7 integrates QA dev Stan's 2026-04-29 universal-standard file (`2026-04-29-qa-ticket-writing-standard-FINAL.md`) on top of the v6 baseline. v7 reframes the standard as a universal contract for "every dev (and every dev's AI ticket-creation skill)" rather than personal feedback. **All v6 rules are preserved** — Newman two-tier, QA-observability constraints (no DB/Docker/Redis/queue admin), 8-canonical-roles RBAC + role-based auth (cite the role; never invent env-var names), URL verification rule + hostname allow/deny lists, `plrt`/`suhrobu+` test-data conventions, Phase 4 Merge Gate banner, "What changes after merge" block, Severity (BLOCKER/HIGH/MEDIUM/LOW/INFO) + Priority (P1/P2/P3), Auth-Lockout Protection, Dev-Provided Test Affordances, 9-convention style linter, cold-read rule, "I Don't Know" Protocol, 35-row test-angles matrix, feature flag state per TC, seed mechanism per entity, real-world side effects + cleanup plan, browser/device matrix per UI TC, API schema diff + webhook payload schema, canonical CI tags + stale-tag forbidden list, TS-in-comments discoverability pointer, Pre-QA Handoff Checklist boxes-stay-empty-until-real semantics, Field Reference appendix, Ticket Type Quick Reference appendix, Common Mistakes That Waste QA Cycles.
-
-**Added in v7:**
-- **7 Anchor Rules** — top-level framing (SHORT / SELF-CONTAINED / TESTABLE BY QA TOOLKIT / CONCRETE ON EXPECTED RESULTS / REAL-USER PERSPECTIVE for UI / NEVER HITS PROD / SELF-CHECKED BEFORE FLIP). Stan's reusable mental model for "what makes a ticket QA-ready."
-- **40-Ask Contract** — the 33-ask v6 contract expanded with 7 new asks (rules 35-41 in non-negotiables): Logging surfaces (#33), External service sandbox config (#34), Escalation channel (#35), Audit log expectations (#36), Browser console state per UI TC (#37), Newman/Postman collection link (#38), In/out-of-scope (#39).
-- **3 Universal Systemic Blockers** consolidated framing (URL must point to QA / role-based auth / `plrt` + `suhrobu+`).
-- **Ticket-type addenda** — UI / WCAG / Performance addendum blocks layered on top of the universal contract. Each defines the extra fields + a paste-ready TC step template (UI: 5-column `# | User action | Expected | Locator | Screenshot`; WCAG: 5-column `# | User action (keyboard / SR) | Expected ARIA / SR / focus | WCAG criterion | axe-core check` + color-contrast-ratio table form; Performance: pre-merge baseline / post-merge target / measurement method / load profile / SLA / failure-mode-at-limit).
-- **35-item Pre-Submit Self-Check** (replaces the older ~22-item Pre-QA Handoff Checklist) — every check tied to one of the 40 asks; same boxes-stay-empty-until-real semantics from v6.
-- **Cross-cutting conventions** added to the inventory: date/time (UTC + ISO 8601 + ±5s tolerance), locale (default `en_US` + `?lang=`), currency (cents-as-integer default + UI 2-decimal format), idempotency keys (client-generated, UUID v4 OR namespaced string), webhook retry/back-off (RA → fulfillment: 3 retries at 5s/30s/5min).
-- **Pre-existing test data** added to the inventory: `stan12121212` (PROTECTED — never mutate; past restore-from-backup incident), `stan1234`, `sharecare-stan`. Plus pre-existing test orgs/programs/tenants and fixture file locations.
-- **Webhook receiver dashboard features** documented: custom-response (return any HTTP status for 4xx/5xx tests) + connection-failure simulation (`https://does-not-exist-<TICKET>.invalid/webhook`).
-- **DS-12806 finding** noted in the Galileo fulfillment row: hardcoded prod `https://galileo-fulfillment.alldigitalrewards.com` → QA `https://galileo-fulfillment.adrqa.info` (1-char fix `alldigitalrewards.com` → `adrqa.info`, or use `{{galileo_url}}` env variable).
-- **Email + date/time + locale + currency + idempotency + webhook-retry conventions** centralized in the inventory under "Cross-cutting conventions" — v6 had these scattered or implicit.
-
-**v5 → v6 carry-forward (still preserved):** 35-row test-angles matrix, 8-canonical-roles RBAC, top-of-ticket Depends On / QA Environment / Test Data blocks, Non-Functional Triggers (28-row PR-change matrix), Auth-Lockout Protection, Dev-Provided Test Affordances contract, Audit Log + Side-Effects (QA-observable surfaces), Error Message Content, Migration Safety + Rollback, API Versioning, Compliance Flags (PII/BIPA/PCI/HIPAA/COPPA/SOX/ADA), Severity auto-escalation, 9-convention style linter, 3 dev-env reference screenshots per UI TC, Newman two-tier framing, atomic single-bug rule, defect-report ADF structure, pre-mortem promote-or-justify per row, ticket size budget per issue type, "I Don't Know" Protocol, Field Reference appendix, Ticket Type Quick Reference appendix. **v6 changes still preserved in v7:** Role-based auth (cite the role; never invent env-var names), URL verification rule (no fixed allowlist; verification IS the rule), Phase 4 Merge Gate banner (§4a), "What changes after merge" block (§1a) + API schema diff + webhook payload schema, Severity + Priority both required (§1b), feature flag state per TC (§7a), test-data seed mechanism per entity (§5a), real-world side effects + cleanup plan per TC (§5b), browser/device matrix per UI TC, per-step expected-result completeness, canonical CI tags + stale-tag forbidden list, Pre-QA Handoff Checklist boxes-stay-empty-until-real semantics, TS-in-comments discoverability pointer, Common Mistakes That Waste QA Cycles.
+The branch-attached + JIRA-attached + description-pointer delivery mechanism solves the operational pain v7 ran into: TS too large to fit in JIRA's editor, append-only updates that get lost in comment threads, no diff history when content changes. Markdown in git solves all three.

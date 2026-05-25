@@ -140,7 +140,9 @@ Full checklist:
 ### Pre-PR Checklist
 
 ```
-- [ ] JIRA description updated (Overview, Specification, Risk Analysis, Testing Strategy with QA manual steps)
+- [ ] JIRA description updated (Overview, Specification, Risk Analysis, minimal Testing Strategy pointer block — see "JIRA Ticket Description" below)
+- [ ] tests/TESTING_STRATEGY.md exists on branch; every box in its Pre-QA Handoff Checklist is ticked
+- [ ] tests/TESTING_STRATEGY.md uploaded to JIRA as an attachment (curl REST — see "JIRA Update" below)
 - [ ] Self-verification checkpoint completed
 - [ ] `git diff` reviewed — ONLY intended changes, no test config, no docker-compose overrides
 - [ ] All tests run INSIDE DOCKER: phpcs, phpunit, newman
@@ -156,25 +158,40 @@ Full checklist:
 
 ### JIRA Ticket Description (Do This BEFORE Creating the PR)
 
-The JIRA description is a core deliverable, not an afterthought. Update it with: Overview, Specification (acceptance criteria), Risk Analysis, and the **Testing Strategy v3 template**.
+The JIRA description is a deliverable, not an afterthought. Update it with: Overview, Specification (acceptance criteria), Risk Analysis, and a **minimal Testing Strategy pointer block** — NOT a full Testing Strategy. The full TS lives at `tests/TESTING_STRATEGY.md` on the branch and is uploaded as a JIRA attachment.
 
-**Invoke the `testing-strategy` skill** to author the Testing Strategy section. That skill owns the canonical v3 template (at `~/.claude/skills/testing-strategy/references/template.md`), the absolute rules, and the Pre-QA Handoff Checklist. Do not paraphrase or hand-roll the Testing Strategy section — read the skill, copy the template, fill it out.
+**Invoke the `testing-strategy` skill** to author `tests/TESTING_STRATEGY.md`. That skill owns the DS-13017 standard (template at `~/.claude/skills/testing-strategy/references/template.md`, factual reference data at `references/qa-environment-inventory.md`, the Pre-QA Handoff Checklist, the drafting rules). Do not paraphrase or hand-roll — read the skill, copy the template, fill it out on the branch.
 
-**Hard rule: PR creation is BLOCKED until the Section 10 Pre-QA Handoff Checklist (in the testing-strategy skill) is complete.** Every box must be checked. Testing Strategy is mandatory for every ticket — no exceptions for "small," "config-only," or "obvious" changes. If code changes, the ticket has a Testing Strategy.
+**Hard rule: PR creation is BLOCKED until ALL of the following are true:** (a) `tests/TESTING_STRATEGY.md` exists on the branch; (b) every box in its Pre-QA Handoff Checklist (Universal + API-only or UI-only subset) is ticked; (c) the file is uploaded to JIRA as an attachment via REST curl; (d) the JIRA description carries the minimal pointer block below. Testing Strategy is mandatory for every ticket — no exceptions for "small," "config-only," or "obvious" changes. If code changes, the ticket has a Testing Strategy.
 
-**Non-negotiables from the v3 template:**
-- Every TC starts at **Step 0** (zero-knowledge baseline — env, role, account, credentials, auth, prerequisites, mocked services, tags). Cross-references allowed but the slot is required per TC.
-- Every step has all four labeled components: **Action** · **Expected Result** · **Wait Condition** · blank **Actual Result**. API uses `Request` / `Response` (equivalent labels). Linear block format — never tables for execution rows.
-- **Newman collection mandatory** for any API change. Lives at `tests/newman/<service>/`. The Playwright QA framework reads Newman directly to author API tests; markdown Request/Response in the ticket must mirror the Newman request exactly.
-- **QA verification surface is restricted:** browser DOM/URL/console/network + public HTTP API responses ONLY. No DB queries, no container shell, no log access. State changes that are DB-only must either get a public surface added in this PR (Section 5d Externally-Observable State Mapping) or move to per-TC Dev-Only Verification.
-- **Visually-relevant UI steps include inline Expected + Actual screenshot slots** within the step block — never as generic ticket attachments. Skip screenshot slots on steps with purely textual assertions.
-- **`data-testid` fallback rule:** if a UI element lacks an accessible name, dev MUST add `data-testid` in the same PR. Never ship a TC with `nth-child`, class-name, or XPath locators.
-- **Tags per TC:** `@smoke` · `@regression` · `@slow` · `@flaky-quarantine`.
-- **Accessibility scan default-on** for UI TCs (axe-core); zero violations except an explicitly tracked allowlist.
-- **Ticket size capped at 5 TCs.** If you'd need 6+, split the ticket before writing the strategy.
-- **Cold-read rule (final gate):** a stranger reading the ticket with zero prior context must be able to manually execute every TC top-to-bottom without asking a question. If they would need to ask, the TC is incomplete.
+#### Minimal pointer block — paste under `## Testing Strategy` in the JIRA description
 
-The description must reflect what was actually built for THIS ticket. Reference tickets are pattern guides, not specs — assess the actual repo independently.
+```markdown
+## Testing Strategy
+
+**Canonical TS:** [`tests/TESTING_STRATEGY.md`](https://github.com/alldigitalrewards/<repo>/blob/<branch>/tests/TESTING_STRATEGY.md) — also attached to this ticket (latest version at the top of the attachments panel)
+
+**Testing type:** API · UI · API+UI-split (under epic DS-XXXXX)
+
+**Before:** _one user-visible sentence — what they see today_
+**After:** _one user-visible sentence — what they see after this change_
+
+**Ready-to-test signal:** all PRs merged + latest deploy's smoke run green ([link])
+```
+
+**Non-negotiables from the DS-13017 standard (full content in the `testing-strategy` skill):**
+- **Pick ONE testing type per ticket — API OR UI, not both.** A PR spanning both surfaces = split into two cross-linked tickets under one Epic. WCAG folds into UI.
+- **Output format = Prerequisites tables (Universal + API or UI) + Step 0 + Request/Action templates + Pre-QA Handoff Checklist.** Verbatim from `references/template.md`. No section numbering, no addenda.
+- **Coverage = ONE happy E2E + minimum negatives for THIS change. 2-5 TCs total. If you'd need 6+, split the ticket.**
+- **QA observability:** HTTP API · browser UI · email inbox · Jira · GitHub. No DB, queues, Docker, K8s, internal logs, APM, prod.
+- **Auth = name the specific role** from QA's `config/auth/roles.ts`: `superAdmin, admin, accounting, reporting, configuration, customerService, participantView, programAdmin`. Never invent env-var names like `BATCH_ADMIN_TOKEN`. Never paste credentials.
+- **Recipes must be verified by running them** — paste literal `curl` + observed 2xx (API) or post-login screenshot (UI), citing PR HEAD SHA. Self-attestation without pasted proof is not acceptable.
+- **No placeholders** — `<sandbox-name>`, `<flag-name>`, `<role-tbd>` mean the drafter didn't have the real answer. Find it before marking Ready for QA.
+- **Newman collection mandatory** for any API change. Lives at `tests/newman/<service>/`. QA's Playwright framework reads Newman directly; markdown Request/Response in the TS must mirror the Newman request exactly.
+- **Synthetic test data only:** `suhrobu+<spec>@alldigitalrewards.com`, `+1 (555) 010-0100`, `qa_<spec>_<timestamp>` for entities. No real PII.
+- **Cold-read rule (final gate):** a stranger reading the TS with zero prior context must be able to manually execute every TC top-to-bottom without asking a question.
+
+The TS file content must reflect what was actually built for THIS ticket. Reference tickets are pattern guides, not specs — assess the actual repo independently.
 
 ### Push & PR
 
@@ -218,9 +235,19 @@ If CI fails: read logs (`gh run view <run-id> --log-failed`), fix inside Docker,
 
 ### JIRA Update
 
-1. **Transition to "Ready for QA"** — walk through all intermediate transitions (Backlog → Analysis → Selected for Development → Development in Progress → Ready for QA). Don't leave tickets in an intermediate state.
-2. **Comment** with PR link
-3. **Log time** — add worklog with approximate time spent
+1. **Upload `tests/TESTING_STRATEGY.md` to JIRA as attachment.** Atlassian MCP doesn't expose an attachment-upload tool and `jira` CLI v1.7.0 doesn't have `attach` — use `curl` against the REST API:
+
+   ```bash
+   curl -s -u "<your-atlassian-email>:$JIRA_API_TOKEN" \
+     -X POST -H "X-Atlassian-Token: no-check" \
+     -F "file=@tests/TESTING_STRATEGY.md" \
+     https://alldigitalrewards.atlassian.net/rest/api/3/issue/<TICKET-KEY>/attachments
+   ```
+
+   Re-upload on every TS revision — JIRA preserves attachment history; QA reads the most recent at the top of the attachments panel. Do NOT delete prior versions.
+2. **Transition to "Ready for QA"** — walk through all intermediate transitions (Backlog → Analysis → Selected for Development → Development in Progress → Ready for QA). Don't leave tickets in an intermediate state. **Blocked until the TS file is uploaded and the description pointer block is in place.**
+3. **Comment** with PR link
+4. **Log time** — add worklog with approximate time spent
 
 ## QA Returns
 
