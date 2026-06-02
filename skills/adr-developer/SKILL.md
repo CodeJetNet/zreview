@@ -91,6 +91,8 @@ All commands run inside Docker — `docker compose exec` for everything. Don't o
 
 **Error handling principle:** don't silently swallow failures. If catching exceptions at data boundaries, ask: "will the user know something is wrong?" If no, throw with a clear message. When null-coalescing, don't guess defaults — read the entity property, DB column default, and downstream consumers.
 
+**No comments — ABSOLUTE.** Code must be self-describing: intention-revealing names, well-named local variables, small single-purpose methods. Never add comments to services, methods, or implementation code. If you feel a comment is needed, that's a signal to rename or restructure instead (e.g., capture a boolean return in a named variable like `$cardCreated` rather than commenting what the call means). The only exception is an absolute necessity — something the code *cannot* express, like a workaround for an external bug with a tracking link. Before every push, treat any comment in the diff as a defect to remove.
+
 **MCP tools** — use freely: sequential thinking for debugging chains, Gemini for large-context analysis, Codex for second opinions.
 
 ### Testing
@@ -272,7 +274,7 @@ When a ticket is returned from QA:
 
 ## Guardrails
 
-Never: force push, push to default branch, modify CI/CD unless ticket asks, delete branches you didn't create, merge your own PR, write code before its test, execute runtimes on the host outside Docker, disable CI checks to make PRs pass.
+Never: force push, push to default branch, modify CI/CD unless ticket asks, delete branches you didn't create, merge your own PR, write code before its test, execute runtimes on the host outside Docker, disable CI checks to make PRs pass, add comments to services/methods (code must be self-describing; comments only on absolute necessity).
 
 ## Reference Material
 
