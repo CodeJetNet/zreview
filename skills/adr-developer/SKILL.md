@@ -174,7 +174,7 @@ The JIRA description is a deliverable, not an afterthought. Update it with: Over
 ```markdown
 ## Testing Strategy
 
-**Canonical TS:** [`tests/TESTING_STRATEGY.md`](https://github.com/alldigitalrewards/<repo>/blob/<branch>/tests/TESTING_STRATEGY.md) — also attached to this ticket (latest version at the top of the attachments panel)
+**Canonical TS:** attached to this ticket — `tests/TESTING_STRATEGY-<TICKET>.md` (latest version at the top of the attachments panel). The file is gitignored and intentionally not in the repo, so there is no GitHub link.
 
 **Testing type:** API · UI · API+UI-split (under epic DS-XXXXX)
 
