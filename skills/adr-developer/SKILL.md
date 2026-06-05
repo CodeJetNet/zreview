@@ -143,8 +143,9 @@ Full checklist:
 
 ```
 - [ ] JIRA description updated (Overview, Specification, Risk Analysis, minimal Testing Strategy pointer block — see "JIRA Ticket Description" below)
-- [ ] tests/TESTING_STRATEGY.md exists on branch; every box in its Pre-QA Handoff Checklist is ticked
-- [ ] tests/TESTING_STRATEGY.md uploaded to JIRA as an attachment (curl REST — see "JIRA Update" below)
+- [ ] tests/TESTING_STRATEGY-<TICKET>.md exists locally (gitignored — NOT committed to the repo); every box in its Pre-QA Handoff Checklist is ticked
+- [ ] tests/TESTING_STRATEGY-<TICKET>.md uploaded to JIRA as an attachment (curl REST — see "JIRA Update" below) — this is the sole delivered copy
+- [ ] tests/TESTING_STRATEGY*.md is in the repo's .gitignore (add it if missing); confirm `git diff --stat` shows NO TS file in the PR
 - [ ] Self-verification checkpoint completed
 - [ ] `git diff` reviewed — ONLY intended changes, no test config, no docker-compose overrides
 - [ ] All tests run INSIDE DOCKER: phpcs, phpunit, newman
