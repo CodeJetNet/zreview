@@ -161,11 +161,13 @@ Full checklist:
 
 ### JIRA Ticket Description (Do This BEFORE Creating the PR)
 
-The JIRA description is a deliverable, not an afterthought. Update it with: Overview, Specification (acceptance criteria), Risk Analysis, and a **minimal Testing Strategy pointer block** — NOT a full Testing Strategy. The full TS lives at `tests/TESTING_STRATEGY.md` on the branch and is uploaded as a JIRA attachment.
+The JIRA description is a deliverable, not an afterthought. Update it with: Overview, Specification (acceptance criteria), Risk Analysis, and a **minimal Testing Strategy pointer block** — NOT a full Testing Strategy. The full TS lives **locally only** at `tests/TESTING_STRATEGY-<TICKET>.md` (gitignored — **NOT committed to the repo**) and is delivered as a JIRA attachment.
 
-**Invoke the `testing-strategy` skill** to author `tests/TESTING_STRATEGY.md`. That skill owns the DS-13017 standard (template at `~/.claude/skills/testing-strategy/references/template.md`, factual reference data at `references/qa-environment-inventory.md`, the Pre-QA Handoff Checklist, the drafting rules). Do not paraphrase or hand-roll — read the skill, copy the template, fill it out on the branch.
+> **ADR override of the testing-strategy skill's delivery mechanism:** the testing-strategy skill treats the branch-committed file as the source of truth. In ADR repos we do **not** commit the TS — it is gitignored and the **JIRA attachment is the source of truth**. Add `tests/TESTING_STRATEGY*.md` to the repo's `.gitignore` (and `git rm --cached` it if a prior run committed one) so it never lands in a PR. Everything else from the testing-strategy skill (DS-13017 template, drafting rules, Pre-QA Handoff Checklist) still applies.
 
-**Hard rule: PR creation is BLOCKED until ALL of the following are true:** (a) `tests/TESTING_STRATEGY.md` exists on the branch; (b) every box in its Pre-QA Handoff Checklist (Universal + API-only or UI-only subset) is ticked; (c) the file is uploaded to JIRA as an attachment via REST curl; (d) the JIRA description carries the minimal pointer block below. Testing Strategy is mandatory for every ticket — no exceptions for "small," "config-only," or "obvious" changes. If code changes, the ticket has a Testing Strategy.
+**Invoke the `testing-strategy` skill** to author `tests/TESTING_STRATEGY-<TICKET>.md`. That skill owns the DS-13017 standard (template at `~/.claude/skills/testing-strategy/references/template.md`, factual reference data at `references/qa-environment-inventory.md`, the Pre-QA Handoff Checklist, the drafting rules). Do not paraphrase or hand-roll — read the skill, copy the template, fill it out locally. **Do not commit it.**
+
+**Hard rule: PR creation is BLOCKED until ALL of the following are true:** (a) `tests/TESTING_STRATEGY-<TICKET>.md` exists locally (gitignored, **not committed**); (b) every box in its Pre-QA Handoff Checklist (Universal + API-only or UI-only subset) is ticked; (c) the file is uploaded to JIRA as an attachment via REST curl; (d) the JIRA description carries the minimal pointer block below. Testing Strategy is mandatory for every ticket — no exceptions for "small," "config-only," or "obvious" changes. If code changes, the ticket has a Testing Strategy.
 
 #### Minimal pointer block — paste under `## Testing Strategy` in the JIRA description
 
