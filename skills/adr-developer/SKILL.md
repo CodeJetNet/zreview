@@ -240,16 +240,16 @@ If CI fails: read logs (`gh run view <run-id> --log-failed`), fix inside Docker,
 
 ### JIRA Update
 
-1. **Upload `tests/TESTING_STRATEGY.md` to JIRA as attachment.** Atlassian MCP doesn't expose an attachment-upload tool and `jira` CLI v1.7.0 doesn't have `attach` — use `curl` against the REST API:
+1. **Upload `tests/TESTING_STRATEGY-<TICKET>.md` to JIRA as attachment.** This is the **sole delivered copy** — the file is gitignored, never committed. Atlassian MCP doesn't expose an attachment-upload tool and `jira` CLI v1.7.0 doesn't have `attach` — use `curl` against the REST API:
 
    ```bash
    curl -s -u "<your-atlassian-email>:$JIRA_API_TOKEN" \
      -X POST -H "X-Atlassian-Token: no-check" \
-     -F "file=@tests/TESTING_STRATEGY.md" \
+     -F "file=@tests/TESTING_STRATEGY-<TICKET>.md" \
      https://alldigitalrewards.atlassian.net/rest/api/3/issue/<TICKET-KEY>/attachments
    ```
 
-   Re-upload on every TS revision — JIRA preserves attachment history; QA reads the most recent at the top of the attachments panel. Do NOT delete prior versions.
+   Re-upload on every TS revision — JIRA preserves attachment history; QA reads the most recent at the top of the attachments panel. Do NOT delete prior versions. The attachment-upload curl can carry the literal forged/injection payloads the TS documents; the **JIRA description / comments cannot** (Cloudflare WAF blocks injection-looking strings — defang there, keep literals in the attached `.md` only).
 2. **Transition to "Ready for QA"** — walk through all intermediate transitions (Backlog → Analysis → Selected for Development → Development in Progress → Ready for QA). Don't leave tickets in an intermediate state. **Blocked until the TS file is uploaded and the description pointer block is in place.**
 3. **Comment** with PR link
 4. **Log time** — add worklog with approximate time spent
