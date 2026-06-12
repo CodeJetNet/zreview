@@ -159,6 +159,8 @@ Full checklist:
 
 ## Delivery
 
+**Default: deliver fully.** Once the work is finished and tested end-to-end, complete this entire Delivery sequence by DEFAULT without asking — update the JIRA description, open the PR, comment the PR link, transition the ticket to Ready for QA, and log time. Do NOT ask "should I open a PR?" or stop at "pushed, awaiting your call." The ONLY exception is when the user explicitly says not to open a PR (or to hold it) in that turn — they will always say so when they want it held. Merging remains separately gated: never merge without an explicit per-merge ask.
+
 ### JIRA Ticket Description (Do This BEFORE Creating the PR)
 
 The JIRA description is a deliverable, not an afterthought. Update it with: Overview, Specification (acceptance criteria), Risk Analysis, and a **minimal Testing Strategy pointer block** — NOT a full Testing Strategy. The full TS lives **locally only** at `tests/TESTING_STRATEGY-<TICKET>.md` (gitignored — **NOT committed to the repo**) and is delivered as a JIRA attachment.
