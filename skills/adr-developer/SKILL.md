@@ -53,8 +53,6 @@ Ask: **"Do you have an existing JIRA ticket, or do we need to create one?"**
 
 ### Setup
 
-> Note: for claim-api specifically, integration tests are excluded from GitHub workflow runs (Joe's call, 2026-07-30) — they boot the real container against Docker-absolute paths and cannot pass on a bare runner.
-
 1. **Create branch** named after ticket key (e.g., `DS-12397`) off the default branch. **Never branch from an existing feature branch** — verify with `git log --oneline <default>..HEAD` that only your changes are present.
 2. **Set up environment** — if `.env.example` exists, copy to `.env`. Check `docker-compose.yml` for `env_file` references. Env vars come in complete sets: TOKEN_ENDPOINT always needs TOKEN_USERNAME + TOKEN_PASSWORD alongside it.
 3. **Discover the tech stack** — read `docker-compose.yml`, `composer.json`, `package.json`, `Makefile`
