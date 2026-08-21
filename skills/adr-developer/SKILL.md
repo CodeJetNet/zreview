@@ -231,7 +231,7 @@ The TS file content must reflect what was actually built for THIS ticket. Refere
      ### Have the changes been verified to comply with the security policy requirements?
      Yes
      ```
-   - **Reviewers:** jhoughtelin, zwalden, and nicholasmejia
+   - **Reviewers:** jhoughtelin, zwalden, nicholasmejia, and jmuto2
 
 ### Post-PR: CI Monitoring
 
