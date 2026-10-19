@@ -159,7 +159,7 @@ Full checklist:
 
 ## Delivery
 
-**Default: deliver fully.** Once the work is finished and tested end-to-end, complete this entire Delivery sequence by DEFAULT without asking — update the JIRA description, open the PR, comment the PR link, transition the ticket to Ready for QA, and log time. Do NOT ask "should I open a PR?" or stop at "pushed, awaiting your call." The ONLY exception is when the user explicitly says not to open a PR (or to hold it) in that turn — they will always say so when they want it held. Merging remains separately gated: never merge without an explicit per-merge ask.
+**Default: deliver fully.** Once the work is finished and tested end-to-end, complete this entire Delivery sequence by DEFAULT without asking — update the JIRA description, open the PR, comment the PR link, transition the ticket to Ready for QA, and post the token usage comment. Do NOT ask "should I open a PR?" or stop at "pushed, awaiting your call." The ONLY exception is when the user explicitly says not to open a PR (or to hold it) in that turn — they will always say so when they want it held. Merging remains separately gated: never merge without an explicit per-merge ask.
 
 ### JIRA Ticket Description (Do This BEFORE Creating the PR)
 
@@ -254,7 +254,17 @@ If CI fails: read logs (`gh run view <run-id> --log-failed`), fix inside Docker,
    Re-upload on every TS revision — JIRA preserves attachment history; QA reads the most recent at the top of the attachments panel. Do NOT delete prior versions. The attachment-upload curl can carry the literal forged/injection payloads the TS documents; the **JIRA description / comments cannot** (Cloudflare WAF blocks injection-looking strings — defang there, keep literals in the attached `.md` only).
 2. **Transition to "Ready for QA"** — walk through all intermediate transitions (Backlog → Analysis → Selected for Development → Development in Progress → Ready for QA). Don't leave tickets in an intermediate state. **Blocked until the TS file is uploaded and the description pointer block is in place.**
 3. **Comment** with PR link
-4. **Log time** — add worklog with approximate time spent
+4. **Post the token usage comment.** Never log time: Jira time tracking is retired. `scripts/ticket-tokens.sh` in this skill's base directory totals the Claude Code tokens spent on the ticket (every prompt whose work mentions the key, across all sessions and subagents) and prints a Jira wiki-markup comment. Post its output as its own comment:
+
+   ```bash
+   <skill-base-dir>/scripts/ticket-tokens.sh <TICKET-KEY> \
+     | jq -Rs '{body: .}' \
+     | curl -s -u "<your-atlassian-email>:$JIRA_API_TOKEN" \
+         -X POST -H "Content-Type: application/json" --data @- \
+         https://alldigitalrewards.atlassian.net/rest/api/2/issue/<TICKET-KEY>/comment
+   ```
+
+   Post it again after every later delivery on the same ticket (QA return, review fixes). The totals are cumulative, so the newest comment is the current figure.
 
 ## QA Returns
 
