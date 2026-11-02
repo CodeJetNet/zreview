@@ -57,7 +57,7 @@ The cost of a single accidental prod hit (data corruption, real-money charges, c
 
 | Service | Real QA URL | Notes |
 | --- | --- | --- |
-| api-batch-facilitator | `https://ra.adrqa.info/api/batch/*` | Path-based on RA admin host. |
+| api-batch-facilitator | `https://admin.adrqa.info/api/batch/*` | Path-based on the RewardSTACK admin host (rewardstack `docker/ingress.conf` `location /api/batch/`; RA has no such route). Corrected 2026-11-02. |
 | catalog | `https://admin.adrqa.info/api/product/catalog/` | Path-based on admin host. |
 | claim-card | `https://adr-cards.adrqa.info` | Deploys to existing card-account host. |
 
