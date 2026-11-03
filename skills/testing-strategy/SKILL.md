@@ -34,16 +34,13 @@ The TS lives in three places simultaneously, with one source of truth:
 
 ### Uploading the attachment to JIRA
 
-Atlassian MCP does not expose an attachment-upload tool; `jira` CLI v1.7.0 does not support `attach`. Use `curl` directly:
+Atlassian MCP does not expose an attachment-upload tool; `jira` CLI v1.7.0 does not support `attach`. Use the adr-developer skill's REST wrapper, as its own Bash call with nothing chained to it:
 
 ```bash
-curl -s -u "<your-atlassian-email>:$JIRA_API_TOKEN" \
-  -X POST -H "X-Atlassian-Token: no-check" \
-  -F "file=@tests/TESTING_STRATEGY.md" \
-  https://alldigitalrewards.atlassian.net/rest/api/3/issue/<TICKET-KEY>/attachments
+~/.claude/skills/adr-developer/scripts/jira-rest.sh POST /rest/api/3/issue/<TICKET-KEY>/attachments upload:<repo>/tests/TESTING_STRATEGY.md
 ```
 
-`JIRA_API_TOKEN` must be set in the environment. Re-upload on every TS revision; do NOT delete prior attachment versions — JIRA preserves them as audit trail.
+Write the script's absolute path when you run it. `JIRA_EMAIL` (your Atlassian login) and `JIRA_API_TOKEN` must be set in the environment. Re-upload on every TS revision; do NOT delete prior attachment versions — JIRA preserves them as audit trail.
 
 ## The DS-13017 contract — what every TS SHALL include
 
