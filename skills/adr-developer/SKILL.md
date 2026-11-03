@@ -93,6 +93,36 @@ All commands run inside Docker — `docker compose exec` for everything. Don't o
 
 **No comments — ABSOLUTE.** Code must be self-describing: intention-revealing names, well-named local variables, small single-purpose methods. Never add comments to services, methods, or implementation code. If you feel a comment is needed, that's a signal to rename or restructure instead (e.g., capture a boolean return in a named variable like `$cardCreated` rather than commenting what the call means). The only exception is an absolute necessity — something the code *cannot* express, like a workaround for an external bug with a tracking link. Before every push, treat any comment in the diff as a defect to remove.
 
+**Raw SQL lives in a heredoc — ABSOLUTE.** Any SQL statement that spans more than one line, or that is assembled from more than one piece, is a `<<<SQL … SQL;` block. Never build a query by joining quoted string literals with the `.` operator. This is the house style: `ProgramRepository.php` carries 26 heredoc blocks and, before DS-13418, not a single concatenated query. A query assembled with `.` is a defect to fix before push, even when it "reads fine."
+
+Two existing patterns are fine and are NOT what this rule targets — don't churn them:
+- a trivial single-line query as a quoted string (`$sql = "SELECT * FROM Domain WHERE id = ?";`)
+- appending one condition to an already-built query with `$sql .= " AND foo = ?";`
+
+```php
+// Wrong — quoted fragments joined with the concatenation operator
+$sql = 'SELECT p.sku, SUM(i.quantity) AS quantity '
+    . self::SOURCE
+    . $filters
+    . ' GROUP BY p.sku ORDER BY quantity DESC LIMIT ?';
+
+// Right — one heredoc, dynamic parts interpolated
+$sql = <<<SQL
+SELECT p.sku, SUM(i.quantity) AS quantity
+{$this->rangeSource()}
+{$filters}
+GROUP BY p.sku
+ORDER BY quantity DESC
+LIMIT ?
+SQL;
+```
+
+Compose dynamic queries by interpolating `{$fragment}` **inside** the heredoc, the way the existing repositories already do (`WHERE id IN ({$placeholders})`, `{$this->addUserProgramOrgAccessSqlIfPresent()}`). Build each fragment in its own small named method so the heredoc stays readable.
+
+**Interpolate structure only, never values.** The only thing allowed through `{$…}` is SQL the code itself generated — placeholder lists, generated conditions, ORDER BY direction chosen from a fixed allowlist. Every value stays a bound parameter, including values that arrive from a repository method's own arguments. "Use heredoc" is a formatting rule; it never licenses dropping a variable into a query. A `LIMIT` bound with native prepares (`PDO::ATTR_EMULATE_PREPARES => false`) must be bound with `PDO::PARAM_INT` or MySQL rejects the quoted string.
+
+Reuse a shared FROM/WHERE across sibling queries by extracting it to one heredoc constant or private method rather than repeating it — but keep the extracted piece a heredoc too.
+
 **MCP tools** — use freely: sequential thinking for debugging chains, Gemini for large-context analysis, Codex for second opinions.
 
 ### Testing
@@ -148,6 +178,7 @@ Full checklist:
 - [ ] tests/TESTING_STRATEGY*.md is in the repo's .gitignore (add it if missing); confirm `git diff --stat` shows NO TS file in the PR
 - [ ] Self-verification checkpoint completed
 - [ ] `git diff` reviewed — ONLY intended changes, no test config, no docker-compose overrides
+- [ ] Every multi-line or composed SQL statement in the diff is a `<<<SQL` heredoc — `grep -nE "^\s*\.\s*['\"]" <changed-files>` returns nothing; only code-generated structure interpolated, every value still bound
 - [ ] All tests run INSIDE DOCKER: phpcs, phpunit, newman
 - [ ] Container logs inspected — zero errors/exceptions/warnings
 - [ ] Env vars complete (TOKEN_ENDPOINT + TOKEN_USERNAME + TOKEN_PASSWORD)
@@ -215,7 +246,7 @@ The TS file content must reflect what was actually built for THIS ticket. Refere
 2. **Push the branch**
 3. **Review your own diff** — `git diff --stat` and `git diff` before pushing. A 10-second review prevents hours of fix-ups.
 4. **Create PR:**
-   - **Title:** the exact JIRA ticket summary (not a custom title)
+   - **Title:** the ticket key, a space, then the exact JIRA ticket summary: `DS-12345 <summary>` (not a custom title)
    - **Body:**
      ```
      ## Description
@@ -240,7 +271,7 @@ The TS file content must reflect what was actually built for THIS ticket. Refere
      ### Have the changes been verified to comply with the security policy requirements?
      Yes
      ```
-   - **Reviewers:** jhoughtelin, zwalden, nicholasmejia, and jmuto2
+   - **Reviewers:** jhoughtelin, zwalden, and nicholasmejia
 
 ### Post-PR: CI Monitoring
 
@@ -260,7 +291,7 @@ If CI fails: read logs (`gh run view <run-id> --log-failed`), fix inside Docker,
      https://alldigitalrewards.atlassian.net/rest/api/3/issue/<TICKET-KEY>/attachments
    ```
 
-   Re-upload on every TS revision — JIRA preserves attachment history; QA reads the most recent at the top of the attachments panel. Do NOT delete prior versions. The attachment-upload curl can carry the literal forged/injection payloads the TS documents; the **JIRA description / comments cannot** (Cloudflare WAF blocks injection-looking strings — defang there, keep literals in the attached `.md` only).
+   Re-upload on every TS revision, then delete the previous `TESTING_STRATEGY-<TICKET>.md` attachment (`DELETE /rest/api/2/attachment/<id>`) so the ticket carries exactly one TS. Same-named old copies get opened by mistake. The attachment-upload curl can carry the literal forged/injection payloads the TS documents; the **JIRA description / comments cannot** (Cloudflare WAF blocks injection-looking strings — defang there, keep literals in the attached `.md` only).
 2. **Transition to "Ready for QA"** — walk through all intermediate transitions (Backlog → Analysis → Selected for Development → Development in Progress → Ready for QA). Don't leave tickets in an intermediate state. **Blocked until the TS file is uploaded and the description pointer block is in place.**
 3. **Comment** with PR link
 4. **Post the token usage comment.** Never log time: Jira time tracking is retired. `scripts/ticket-tokens.sh` in this skill's base directory totals the Claude Code tokens spent on the ticket (every prompt whose work mentions the key, across all sessions and subagents) and prints a Jira wiki-markup comment. Post its output as its own comment:
