@@ -20,6 +20,7 @@ shift $((OPTIND - 1))
 
 [[ $# -ge 2 && $# -le 3 ]] || fail "$USAGE"
 [[ -n "${JIRA_API_TOKEN:-}" ]] || fail 'JIRA_API_TOKEN is not set'
+[[ "${JIRA_EMAIL:-}" == *@alldigitalrewards.com ]] || fail 'JIRA_EMAIL must be your Atlassian login (@alldigitalrewards.com)'
 
 method=$1
 path=$2
