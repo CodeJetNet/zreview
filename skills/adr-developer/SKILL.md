@@ -282,14 +282,13 @@ If CI fails: read logs (`gh run view <run-id> --log-failed`), fix inside Docker,
 
 ### JIRA Update
 
-1. **Upload `tests/TESTING_STRATEGY-<TICKET>.md` to JIRA as attachment.** This is the **sole delivered copy** — the file is gitignored, never committed. Atlassian MCP doesn't expose an attachment-upload tool and `jira` CLI v1.7.0 doesn't have `attach` — use `curl` against the REST API:
+1. **Upload `tests/TESTING_STRATEGY-<TICKET>.md` to JIRA as attachment.** This is the **sole delivered copy** — the file is gitignored, never committed. Atlassian MCP doesn't expose an attachment-upload tool and `jira` CLI v1.7.0 doesn't have `attach` — use the REST API through `scripts/jira-rest.sh` in this skill's base directory:
 
    ```bash
-   curl -s -u "<your-atlassian-email>:$JIRA_API_TOKEN" \
-     -X POST -H "X-Atlassian-Token: no-check" \
-     -F "file=@tests/TESTING_STRATEGY-<TICKET>.md" \
-     https://alldigitalrewards.atlassian.net/rest/api/3/issue/<TICKET-KEY>/attachments
+   <skill-base-dir>/scripts/jira-rest.sh POST /rest/api/3/issue/<TICKET-KEY>/attachments upload:<repo>/tests/TESTING_STRATEGY-<TICKET>.md
    ```
+
+   Every Jira REST call goes through `jira-rest.sh`, as its own Bash call with its absolute path and nothing chained before or after it, so a `Bash(<skill-base-dir>/scripts/jira-rest.sh *)` allow rule in `~/.claude/settings.json` lets it run without a permission prompt. It reads `JIRA_EMAIL` (your Atlassian login; set it in the settings `env` block) and `JIRA_API_TOKEN` from the environment, only talks to alldigitalrewards.atlassian.net, refuses worklogs and any DELETE other than an attachment, writes the response to stdout (or `-o <file>`), prints `HTTP <code>` on stderr and exits non-zero outside 2xx. Bodies are `@<file>.json`.
 
    Re-upload on every TS revision, then delete the previous `TESTING_STRATEGY-<TICKET>.md` attachment (`DELETE /rest/api/2/attachment/<id>`) so the ticket carries exactly one TS. Same-named old copies get opened by mistake. The attachment-upload curl can carry the literal forged/injection payloads the TS documents; the **JIRA description / comments cannot** (Cloudflare WAF blocks injection-looking strings — defang there, keep literals in the attached `.md` only).
 2. **Transition to "Ready for QA"** — walk through all intermediate transitions (Backlog → Analysis → Selected for Development → Development in Progress → Ready for QA). Don't leave tickets in an intermediate state. **Blocked until the TS file is uploaded and the description pointer block is in place.**
