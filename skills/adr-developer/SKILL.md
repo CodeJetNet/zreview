@@ -295,12 +295,11 @@ If CI fails: read logs (`gh run view <run-id> --log-failed`), fix inside Docker,
 3. **Comment** with PR link
 4. **Post the token usage comment.** Never log time: Jira time tracking is retired. `scripts/ticket-tokens.sh` in this skill's base directory totals the Claude Code tokens spent on the ticket (every prompt whose work mentions the key, across all sessions and subagents) and prints a Jira wiki-markup comment. Post its output as its own comment:
 
+   Two Bash calls, so the second one is a plain `jira-rest.sh` call:
+
    ```bash
-   <skill-base-dir>/scripts/ticket-tokens.sh <TICKET-KEY> \
-     | jq -Rs '{body: .}' \
-     | curl -s -u "<your-atlassian-email>:$JIRA_API_TOKEN" \
-         -X POST -H "Content-Type: application/json" --data @- \
-         https://alldigitalrewards.atlassian.net/rest/api/2/issue/<TICKET-KEY>/comment
+   <skill-base-dir>/scripts/ticket-tokens.sh <TICKET-KEY> | jq -Rs '{body: .}' > <scratchpad>/tokens-<TICKET-KEY>.json
+   <skill-base-dir>/scripts/jira-rest.sh POST /rest/api/2/issue/<TICKET-KEY>/comment @<scratchpad>/tokens-<TICKET-KEY>.json
    ```
 
    Post it again after every later delivery on the same ticket (QA return, review fixes). The totals are cumulative, so the newest comment is the current figure.
