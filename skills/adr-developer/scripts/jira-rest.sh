@@ -2,7 +2,6 @@
 set -euo pipefail
 
 readonly JIRA_BASE='https://alldigitalrewards.atlassian.net'
-readonly JIRA_LOGIN='jmuto@alldigitalrewards.com'
 readonly USAGE='usage: jira-rest.sh [-o <response-file>] GET|POST|PUT|DELETE /rest/api/<2|3>/<path> [@<body.json> | upload:<file>]'
 
 fail() {
