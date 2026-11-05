@@ -1,24 +1,13 @@
 #!/usr/bin/env bash
 set -euo pipefail
+source "$(cd "$(dirname "$0")" && pwd)/common.sh"
 
-readonly KEYCHAIN_SERVICE='adr-qa-playwright'
-readonly KEYCHAIN_ACCOUNT='qa-dotenv'
-readonly NODE_MODULES_VOLUME='qa-pw-node-modules'
 OVERLAY="$(cd "$(dirname "$0")/../overlay" && pwd)"
 readonly OVERLAY
 readonly USAGE='usage: run-qa.sh [--apps] tests/<area>/<file>.spec.ts [more specs]   (run from your rewardstack-qa-playwright clone)'
 
-fail() {
-  echo "run-qa: $1" >&2
-  exit "${2:-64}"
-}
-
-repo="$(git rev-parse --show-toplevel 2>/dev/null)" || fail "$USAGE"
-[[ -f "$repo/fixtures/auth/auth.setup.ts" && -f "$repo/playwright.config.ts" ]] || fail "$repo is not a rewardstack-qa-playwright clone"
-
-playwright_version="$(sed -nE 's/.*"@playwright\/test": *"[~^]?([0-9]+\.[0-9]+\.[0-9]+)".*/\1/p' "$repo/package.json")"
-[[ -n "$playwright_version" ]] || fail 'cannot read the @playwright/test version from package.json'
-readonly IMAGE="mcr.microsoft.com/playwright:v${playwright_version}-noble"
+repo="$(qa_repo)"
+image="$(playwright_image "$repo")"
 
 auth_admin_only=1
 if [[ "${1:-}" == '--apps' ]]; then
@@ -31,15 +20,33 @@ for spec in "$@"; do
   [[ -f "$repo/$spec" ]] || fail "no such spec: $spec" 66
 done
 
-exclude_file="$(git -C "$repo" rev-parse --git-path info/exclude)"
-[[ "$exclude_file" = /* ]] || exclude_file="$repo/$exclude_file"
-for mounted in playwright.container.config.ts qa-preflight/; do
-  grep -qxF "$mounted" "$exclude_file" 2>/dev/null || printf '%s\n' "$mounted" >> "$exclude_file"
-done
-
 QA_DOTENV_B64="$(security find-generic-password -s "$KEYCHAIN_SERVICE" -a "$KEYCHAIN_ACCOUNT" -w 2>/dev/null)" \
-  || fail 'the QA .env is not in your Keychain yet; run import-qa-env.sh first' 78
+  || fail 'the QA .env is not in your Keychain yet; run import-qa-env.sh or create-qa-accounts.sh first' 78
 export QA_DOTENV_B64
+
+unconfigured="$(printf %s "$QA_DOTENV_B64" | base64 -d | sed -nE "s/^([A-Z0-9_]+)=${UNCONFIGURED}\$/\1/p")"
+
+refuse_if_unconfigured() {
+  local spec=$1 key
+  for key in $unconfigured; do
+    case "$key:$spec" in
+      CM_*:*/changemaker/* | GAME_VENDOR_JWT_SECRET:*/game_vendor/* | AMAZON_FULFILL_JWT_SECRET:*/fulfillment/* | TEST_PASSWORD_MARKETPLACE:*/marketplace/* | TEST_PASSWORD_LANGUAGE:*/marketplace/*)
+        fail "$spec needs $key, which is $UNCONFIGURED in your QA .env" 65 ;;
+    esac
+    if grep -qF "$key" "$repo/$spec"; then
+      fail "$spec reads $key, which is $UNCONFIGURED in your QA .env" 65
+    fi
+  done
+}
+
+for spec in "$@"; do
+  refuse_if_unconfigured "$spec"
+done
+if [[ -z "$auth_admin_only" ]] && grep -q '^CM_' <<< "$unconfigured"; then
+  fail "--apps signs in to Changemaker, but its logins are $UNCONFIGURED in your QA .env" 65
+fi
+
+exclude_from_git "$repo" playwright.container.config.ts qa-preflight/
 
 in_container() {
   local network=$1
@@ -54,7 +61,7 @@ in_container() {
     -e DOTENV_CONFIG_PATH=/tmp/qa.env \
     -e AUTH_ADMIN_ONLY="$auth_admin_only" \
     -e JIRA_REPORT= -e JIRA_AUTO_POST= -e JIRA_AUTO_CREATE= -e JIRA_USER= -e JIRA_TOKEN= \
-    "$IMAGE" \
+    "$image" \
     bash -c 'printf %s "$QA_DOTENV_B64" | base64 -d > /tmp/qa.env && unset QA_DOTENV_B64 && exec "$@"' run-qa "$@"
 }
 

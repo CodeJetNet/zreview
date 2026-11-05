@@ -44,7 +44,7 @@ QA a merged PR with the QA team's Playwright suite (`alldigitalrewards/rewardsta
 
 **Trigger with:** "QA DS-12345", "Review merged PR #123 on QA"
 
-**Setup:** clone the QA repo and import the QA `.env` from the team password manager into your Keychain. See "One-time setup" in the skill.
+**Setup:** clone the QA repo, then either import the QA `.env` from the team password manager into your Keychain, or create your own QA admin accounts with the skill's `new-qa-env.sh` and `create-qa-accounts.sh` (needs your QA Super Admin login and the QA Mailpit login). See "One-time setup" in the skill.
 
 ### php85-fullstack-upgrade
 

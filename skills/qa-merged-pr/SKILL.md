@@ -18,7 +18,13 @@ The QA suite is `alldigitalrewards/rewardstack-qa-playwright` (Playwright + Type
 
 1. Clone the suite: `gh repo clone alldigitalrewards/rewardstack-qa-playwright ~/Desktop/code/rewardstack-qa-playwright`.
 2. Docker Desktop must be running. Nothing runs on the host. The runner uses `mcr.microsoft.com/playwright:v<suite version>-noble` and keeps packages in the Docker volume `qa-pw-node-modules`.
-3. Get the QA `.env` from the team password manager. It is a filled-in copy of the repo's `.env.example`, and every key in `scripts/required-env-keys.txt` needs a value, or the suite won't load. Then run `bash <this skill>/scripts/import-qa-env.sh <path to .env>`. It stores the file in your macOS Keychain (`adr-qa-playwright` / `qa-dotenv`) and lists any missing keys. Delete the file afterwards. The values never go into the repo or the container's disk.
+3. Put the QA `.env` in your macOS Keychain (`adr-qa-playwright` / `qa-dotenv`). Every key in `scripts/required-env-keys.txt` needs a value, or the suite won't load. The values never go into the repo or onto the container's disk. There are two ways:
+   - **From the team password manager:** run `bash <this skill>/scripts/import-qa-env.sh <path to .env>`, then delete the file. It lists any missing keys.
+   - **Without it, create your own QA admin accounts:**
+     1. Run `bash <this skill>/scripts/new-qa-env.sh <you>@alldigitalrewards.com`. It writes `~/.config/adr-qa-playwright/qa.env.draft`, readable only by you. Role addresses go on your own plus-alias (`<you>+qa-super-admin@…`) and the test passwords are generated.
+     2. Fill in the five empty values yourself, in an editor and never in chat: the QA Mailpit URL, user and password, and your own QA Super Admin login.
+     3. With the user's go (this writes to QA), run `bash <this skill>/scripts/create-qa-accounts.sh` from the QA repo. Through the QA repo's `scripts/bootstrap-qa-admins.mjs`, it invites the 9 admin accounts, reads the reset emails from Mailpit, sets each password and signs each account in once. Then it stores the result in Keychain and deletes the draft. Your Super Admin login is used once and never stored.
+     4. Changemaker logins, the game-vendor and Amazon fulfillment JWT secrets, and the two marketplace passwords stay `NOT-CONFIGURED`. The runner refuses Changemaker, game-vendor, fulfillment and marketplace specs, and `--apps`, until those values are real.
 
 ## Steps
 
@@ -39,7 +45,7 @@ The QA suite is `alldigitalrewards/rewardstack-qa-playwright` (Playwright + Type
 
 ### 3. Ask for the go
 
-Show the user the PR, the test cases and the spec files. Say which logins the run uses and what it creates or sends on QA: orders, participants, emails. Ask "Run this on QA? (yes/go)" and stop.
+Show the user the PR, the test cases and the spec files. Say which logins the run uses and what it creates or sends on QA: orders, participants, emails. Before asking, trace every login the specs make to where its credential comes from. If any credential is `NOT-CONFIGURED`, empty, or belongs to an account your `.env` doesn't hold (for example the QA team's own marketplace participants), don't run that spec, and say why. Ask "Run this on QA? (yes/go)" and stop.
 
 ### 4. Run (only after yes/go)
 
