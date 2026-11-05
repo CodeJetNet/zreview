@@ -47,6 +47,7 @@ case "$body" in
   *) fail "$USAGE" ;;
 esac
 
+exec 3>&1
 status=$(curl --config <(printf 'user = "%s:%s"\n' "$JIRA_EMAIL" "$JIRA_API_TOKEN") "${curl_args[@]}" "$JIRA_BASE$path")
 echo "HTTP $status" >&2
 (( status >= 200 && status < 300 ))
