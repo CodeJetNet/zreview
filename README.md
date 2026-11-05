@@ -38,6 +38,14 @@ Autonomous developer agent. Given a JIRA ticket key, handles the full lifecycle:
 
 **Trigger with:** Provide a JIRA ticket key (e.g., `DS-12397`)
 
+### qa-merged-pr
+
+QA a merged PR with the QA team's Playwright suite (`alldigitalrewards/rewardstack-qa-playwright`). It reads the ticket and its Testing Strategy, reuses or writes that ticket's spec, and runs it against QA in Docker only after you say yes or go. It signs each admin role in once before anything else and stops at the first refusal, so a bad password can't lock the team out of QA.
+
+**Trigger with:** "QA DS-12345", "Review merged PR #123 on QA"
+
+**Setup:** clone the QA repo and import the QA `.env` from the team password manager into your Keychain. See "One-time setup" in the skill.
+
 ### php85-fullstack-upgrade
 
 Phased migration guide for upgrading PHP/Slim microservices to PHP 8.5 with modernized dependencies. Covers:
@@ -94,6 +102,10 @@ zreview/
 │   │   └── references/
 │   ├── adr-developer/
 │   │   └── SKILL.md
+│   ├── qa-merged-pr/
+│   │   ├── SKILL.md
+│   │   ├── scripts/
+│   │   └── overlay/
 │   ├── php85-fullstack-upgrade/
 │   │   └── SKILL.md
 │   └── angular-latest-upgrade/
