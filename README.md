@@ -42,7 +42,7 @@ Autonomous developer agent. Given a JIRA ticket key, handles the full lifecycle:
 
 QA a merged PR with the QA team's Playwright suite (`alldigitalrewards/rewardstack-qa-playwright`). It reads the ticket and its Testing Strategy, reuses or writes that ticket's spec, and runs it against QA in Docker only after you say yes or go. It signs each admin role in once before anything else and stops at the first refusal, so a bad password can't lock the team out of QA.
 
-**Trigger with:** "QA DS-12345", "Review merged PR #123 on QA"
+**Trigger with:** "Set up qa-merged-pr" (first time: it checks your machine and walks you through setup), "QA DS-12345", "Review merged PR #123 on QA"
 
 **Setup:** clone the QA repo, then either import the QA `.env` from the team password manager into your Keychain, or create your own QA admin accounts with the skill's `new-qa-env.sh` and `create-qa-accounts.sh` (needs your QA Super Admin login and the QA Mailpit login). See "One-time setup" in the skill.
 
