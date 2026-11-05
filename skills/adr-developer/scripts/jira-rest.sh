@@ -9,7 +9,7 @@ fail() {
   exit 64
 }
 
-response_file=/dev/stdout
+response_file=/dev/fd/3
 while getopts 'o:' option; do
   case "$option" in
     o) response_file=$OPTARG ;;
