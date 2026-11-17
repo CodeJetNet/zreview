@@ -21,7 +21,7 @@ The scripts named below live in this skill's `scripts/` folder. Run them with `b
 
 Run these checks and report each as ready or missing:
 
-1. **QA repo clone:** `git -C ~/Desktop/code/rewardstack-qa-playwright rev-parse --show-toplevel`. If it isn't there, ask the user where their clone is.
+1. **QA repo clone:** `git -C "$ADR_CODE_DIR/rewardstack-qa-playwright" rev-parse --show-toplevel` (`ADR_CODE_DIR` is your code folder, set in the `env` block of `~/.claude/settings.json`). If it isn't set or the clone isn't there, ask the user where their clone is.
 2. **Docker:** `docker info --format '{{.ServerVersion}}'`.
 3. **QA `.env` in Keychain:** `security find-generic-password -s adr-qa-playwright -a qa-dotenv >/dev/null 2>&1 && echo stored || echo missing`. This checks the entry exists without reading it.
 4. **Tools:** `gh auth status` and `command -v jq`.
@@ -30,7 +30,7 @@ If everything is ready, go to step 1. If anything is missing, walk the user thro
 
 ## Setup (once per machine)
 
-1. **Clone:** `gh repo clone alldigitalrewards/rewardstack-qa-playwright ~/Desktop/code/rewardstack-qa-playwright`.
+1. **Clone:** `gh repo clone alldigitalrewards/rewardstack-qa-playwright "$ADR_CODE_DIR/rewardstack-qa-playwright"`.
 2. **Docker Desktop running.** Nothing runs on the host. The runner pulls `mcr.microsoft.com/playwright:v<suite version>-noble` and keeps packages in the Docker volume `qa-pw-node-modules`.
 3. **The QA `.env` goes into the user's macOS Keychain** (`adr-qa-playwright` / `qa-dotenv`). Every key in `scripts/required-env-keys.txt` needs a value, or the suite won't load. First ask the user one question: do you have the QA `.env` file, from the team password manager or a teammate?
    - **Yes:** they run `import-qa-env.sh <path to the file>`, then delete the file. It lists any missing keys by name.

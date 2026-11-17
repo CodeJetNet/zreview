@@ -31,7 +31,7 @@ Ask: **"Do you have an existing JIRA ticket, or do we need to create one?"**
 2. **Read ALL comments** — QA reports, blockers, prior implementation notes. Skip for new tickets.
 3. **Gather context** — linked tickets, parent epic, status history. "Returned from QA" is fundamentally different from "To Do."
 4. **Find the repo** — parse GitHub URL from description. Fallback: `gh repo list alldigitalrewards --limit 100 | grep <service-name>`
-5. **Check local repos first** — look in `~/Desktop/code/<repo-name>`. If it exists, `cd` into it and `git pull`. Only clone if absent. Never create duplicates with suffixes.
+5. **Check local repos first** — look in your code folder, `$ADR_CODE_DIR/<repo-name>` (set `ADR_CODE_DIR` once in the `env` block of `~/.claude/settings.json`). If it exists, `cd` into it and `git pull`. Only clone if absent. Never create duplicates with suffixes.
 6. **Check for prior work** before creating a branch:
    ```bash
    git branch -r | grep <TICKET-KEY>
@@ -327,7 +327,7 @@ When a ticket is returned from QA:
 
 ## Guardrails
 
-Never: force push, push to default branch, modify CI/CD unless ticket asks, delete branches you didn't create, merge your own PR, write code before its test, execute runtimes on the host outside Docker, disable CI checks to make PRs pass, add comments to services/methods (code must be self-describing; comments only on absolute necessity).
+Never: force push, push to default branch, modify CI/CD unless ticket asks, delete branches you didn't create, merge your own PR, write code before its test, execute runtimes on the host outside Docker, disable CI checks to make PRs pass, add doc or AI-slop comments (code must be self-describing; comments only for complex or unclear logic that can't otherwise be made clear).
 
 ## Reference Material
 
